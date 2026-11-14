@@ -1,0 +1,9 @@
+{
+  "all": true,
+  "include": ["mfe-*/src/**/*.ts", "shared/**/*.ts", ".angular/store-tests-*/**/*.js"],
+  "exclude": ["**/*.test.ts", "**/*.d.ts", "node_modules/**", "dist/**"],
+  "exclude-after-remap": true,
+  "reporter": ["text", "lcov", "json", "html"],
+  "reports-dir": "coverage",
+  "temp-directory": "coverage/.v8"
+}

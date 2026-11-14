@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.angular/
+coverage/
+test-results/
+playwright-report/
+.scannerwork/
+package-lock.json
+# Long standalone teaching artifacts and their source have their own renderer.
+pulseops-teaching.html
+angular-microfrontend-guide.html
+angular-microfrontend-guide.md

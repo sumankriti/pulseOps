@@ -1,0 +1,367 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Angular Microfrontend — Revision Guide</title><style>:root {
+  color-scheme: light;
+  --ink: #17263c;
+  --muted: #53657a;
+  --accent: #155e75;
+  --line: #dce5ee;
+}
+* {
+  box-sizing: border-box;
+}
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 24px;
+}
+body {
+  margin: 0;
+  background: #f3f6fa;
+  color: var(--ink);
+  font:
+    16px/1.75 system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+}
+.layout {
+  display: grid;
+  grid-template-columns: 275px minmax(0, 900px);
+  gap: 36px;
+  max-width: 1260px;
+  margin: auto;
+  padding: 40px 24px;
+}
+aside {
+  position: sticky;
+  top: 28px;
+  align-self: start;
+  max-height: 90vh;
+  overflow: auto;
+}
+aside strong {
+  display: block;
+  margin-bottom: 16px;
+}
+nav a {
+  display: block;
+  padding: 7px 10px;
+  border-left: 2px solid var(--line);
+  font-size: 13px;
+  text-decoration: none;
+}
+nav a:hover {
+  background: #e4edf4;
+  border-color: var(--accent);
+}
+a {
+  color: var(--accent);
+}
+a:focus-visible {
+  outline: 3px solid #d97706;
+  outline-offset: 3px;
+}
+main {
+  min-width: 0;
+}
+header {
+  padding: 32px;
+  background: #132c46;
+  color: white;
+  border-radius: 16px;
+  margin-bottom: 24px;
+}
+h1 {
+  font-size: clamp(27px, 4vw, 40px);
+  line-height: 1.2;
+  margin: 12px 0 16px;
+  letter-spacing: -1px;
+}
+.eyebrow {
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: #8ed8e8;
+}
+.meta {
+  color: #c6d6e6;
+  font-size: 13px;
+}
+section {
+  padding: 26px 30px;
+  margin: 20px 0;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: white;
+}
+h2 {
+  font-size: 22px;
+  line-height: 1.35;
+  margin: 0 0 18px;
+}
+p {
+  margin: 12px 0;
+}
+li {
+  margin: 9px 0;
+}
+ul,
+ol {
+  padding-left: 23px;
+}
+pre {
+  overflow-x: auto;
+  padding: 20px;
+  border-radius: 9px;
+  background: #12263a;
+  color: #e0edf9;
+  font-size: 13px;
+  line-height: 1.65;
+}
+code {
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+p code,
+li code {
+  background: #edf3f8;
+  padding: 2px 5px;
+  border-radius: 4px;
+  overflow-wrap: anywhere;
+}
+.skip {
+  position: absolute;
+  left: 12px;
+  top: -60px;
+  background: white;
+  padding: 8px;
+}
+.skip:focus {
+  top: 12px;
+}
+footer {
+  font-size: 13px;
+  color: var(--muted);
+  padding: 12px 0 30px;
+}
+@media (max-width: 850px) {
+  .layout {
+    display: block;
+    padding: 20px 16px;
+  }
+  aside {
+    position: static;
+    max-height: none;
+    margin-bottom: 24px;
+  }
+  nav {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  section {
+    padding: 22px;
+  }
+  header {
+    padding: 25px;
+  }
+}
+@media print {
+  body {
+    background: white;
+    font-size: 11pt;
+  }
+  .layout {
+    display: block;
+    padding: 0;
+    max-width: none;
+  }
+  aside,
+  .skip {
+    display: none;
+  }
+  header {
+    background: white;
+    color: black;
+    padding: 0;
+    border-radius: 0;
+  }
+  .eyebrow,
+  .meta {
+    color: #444;
+  }
+  section {
+    border: 0;
+    padding: 0;
+    margin: 24px 0;
+  }
+  h2 {
+    break-after: avoid;
+  }
+  pre {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    background: #f3f3f3;
+    color: black;
+  }
+  a {
+    color: black;
+  }
+  footer {
+    display: none;
+  }
+}
+</style></head><body><a class="skip" href="#guide">Skip to guide</a><div class="layout"><aside><strong>Revision guide</strong><nav aria-label="Guide sections"><a href="#section-1">1. The core idea</a><a href="#section-2">2. Product: PulseOps</a><a href="#section-3">3. Architecture and responsibilities</a><a href="#section-4">4. Angular and federation</a><a href="#section-5">5. State and communication rules</a><a href="#section-6">6. Real-time behavior</a><a href="#section-7">7. Security and resilience</a><a href="#section-8">8. Independent deployment and rollback</a><a href="#section-9">9. Learning milestones</a><a href="#section-10">10. Meaningful verification</a><a href="#section-11">11. Ten-minute interview demonstration</a><a href="#section-12">12. Architecture decisions to write</a><a href="#section-13">13. Quick revision questions</a><a href="#section-14">14. Sources and implementation references</a><a href="#section-15">15. Build journal — Milestone 01 (historical foundation)</a><a href="#section-16">16. Run, verify, and explore (foundation checkpoint)</a><a href="#section-17">17. Read the implementation in this order</a><a href="#section-18">18. Next implementation checkpoints</a><a href="#section-19">19. Verification record — Milestone 01</a><a href="#section-20">20. Build journal — Milestone 02: asynchronous boundaries</a><a href="#section-21">21. Why these asynchronous choices?</a><a href="#section-22">22. Milestone 02 exercises and verification</a><a href="#section-23">23. Separate project folders — preparation for federation (historical checkpoint)</a><a href="#section-24">24. How the shell composed local domains (historical checkpoint)</a><a href="#section-25">25. Separate-folder verification (historical checkpoint)</a><a href="#section-26">26. Milestone 03 — host and remoteEntry implementation</a><a href="#section-27">27. Follow the host startup and remote route loading</a><a href="#section-28">28. Sharing, failure behavior, and architecture boundaries</a><a href="#section-29">29. Run and verify federation</a><a href="#section-30">30. Native Federation, CLI commands, and an Nx workflow</a><a href="#section-31">31. Milestone 04 — demo login, shared session, and startup feedback</a><a href="#section-32">32. A concrete shared service — NotificationService</a><a href="#section-33">33. Production engineering baseline — lint, Sonar, coverage, and CI</a></nav></aside><main id="guide"><header><span class="eyebrow">PULSEOPS · ARCHITECTURE & BUILD JOURNAL</span><h1>Angular Microfrontend Architecture — Revision Guide</h1><p class="meta">Offline revision guide · Milestones 01–03 · Runtime federation</p></header><p>Build <strong>PulseOps</strong>, a live commerce operations platform, to learn architecture through a realistic product. The goal is to demonstrate independent delivery, clear domain ownership, resilience, and engineering judgment.</p><section id="section-1"><h2>1. The core idea</h2><p>A microfrontend is a business capability delivered as an independently deployable frontend. Federation is a composition mechanism; it does not automatically create good boundaries or team autonomy.</p><p>Use microfrontends when separate teams need independent delivery and the product has stable domain boundaries. Prefer a modular Angular application when one team owns the product, boundaries are still changing, or independent releases offer little benefit.</p></section><section id="section-2"><h2>2. Product: PulseOps</h2><ul><li><strong>Orders:</strong> search, order details, fulfillment workflow, and live order status.</li><li><strong>Inventory:</strong> warehouse stock, reservations, shortages, and live stock changes.</li><li><strong>Incidents:</strong> issue assignment, collaborative updates, and resolution history.</li><li><strong>Shell:</strong> navigation, session context, tenant selection, layout, and remote loading.</li><li><strong>Signature feature:</strong> an incident timeline linking a stock shortage to affected orders, with event replay for a repeatable demo.</li></ul><p>Start with the shell and two domains. Add incidents after the first independent deployment works.</p></section><section id="section-3"><h2>3. Architecture and responsibilities</h2><pre><code>Browser
+  Angular shell
+    /orders     -&gt; Orders remote     -&gt; Orders API
+    /inventory  -&gt; Inventory remote  -&gt; Inventory API
+    /incidents  -&gt; Incidents remote  -&gt; Incidents API
+
+Backend domain events -&gt; Real-time gateway -&gt; Domain updates in browser</code></pre><p>Compose at route level first. Each remote owns its routes, domain state, data access, and user workflows. A modular backend is sufficient initially; frontend boundaries do not require separate backend services.</p><p>Suggested workspace shape:</p><pre><code>apps/
+  shell/
+  orders/
+  inventory/
+  incidents/
+libs/
+  orders/feature/      # domain-specific UI and workflows
+  orders/data-access/ # API clients and state
+  inventory/feature/
+  inventory/data-access/
+  incidents/feature/
+  incidents/data-access/
+  shared/ui/          # reusable presentation components
+  shared/contracts/   # small, versioned integration schemas
+  platform/auth/      # session integration
+  platform/telemetry/</code></pre><p>Keep remote-to-remote imports forbidden. Enforce domain dependency rules with linting or workspace boundary checks. A monorepo can still produce independent release artifacts.</p></section><section id="section-4"><h2>4. Angular and federation</h2><ul><li>Learn standalone components, routing, dependency injection, signals, RxJS, HTTP, and lazy loading first.</li><li>Evaluate Native Federation for a new Angular project. Nx can provide workspace boundaries, caching, and affected builds.</li><li>Learn Webpack Module Federation terminology for existing systems: host, remote, exposed module, shared dependency, and runtime loading.</li><li>Keep Angular and shared dependency compatibility explicit. Singleton sharing is a compatibility choice, not a guarantee that arbitrary Angular versions work together.</li><li>Pin compatible package versions when implementing; verify instructions against the versions you install.</li></ul><p>Current Nx guidance recommends <code>@angular-architects/native-federation</code> for Angular microfrontends. See the sources below before selecting implementation commands.</p></section><section id="section-5"><h2>5. State and communication rules</h2><ul><li><strong>Local UI state:</strong> component signals for selection, filters, and dialogs.</li><li><strong>Domain state:</strong> a domain-owned service or store; use RxJS where asynchronous streams benefit from it.</li><li><strong>Server state:</strong> domain APIs remain authoritative. Define caching and invalidation deliberately.</li><li><strong>Cross-domain navigation:</strong> use routes and stable identifiers, such as <code>/orders/123</code>.</li><li><strong>Cross-domain notifications:</strong> use small, versioned contracts only when needed; avoid a global event bus carrying all business state.</li><li><strong>Shared context:</strong> expose a narrow session/tenant interface. On tenant changes, cancel old requests, clear tenant-scoped caches, and reconnect streams.</li></ul><p>Example event contract:</p><pre><code>{
+  &quot;type&quot;: &quot;inventory.shortage.v1&quot;,
+  &quot;eventId&quot;: &quot;evt-1042&quot;,
+  &quot;tenantId&quot;: &quot;tenant-demo&quot;,
+  &quot;occurredAt&quot;: &quot;2026-11-13T10:00:00Z&quot;,
+  &quot;aggregateId&quot;: &quot;warehouse-01:sku-123&quot;,
+  &quot;aggregateVersion&quot;: 17,
+  &quot;payload&quot;: { &quot;sku&quot;: &quot;sku-123&quot;, &quot;warehouseId&quot;: &quot;warehouse-01&quot; }
+}</code></pre><p>Version integration contracts and validate payloads at runtime. TypeScript types alone do not validate network data. Avoid putting credentials or unnecessary personal data in events.</p></section><section id="section-6"><h2>6. Real-time behavior</h2><p>Start with HTTP commands and SSE for server-to-browser notifications. Use WebSockets when bidirectional interaction requirements justify them.</p><ul><li>Deduplicate using event IDs with bounded retention.</li><li>Use per-entity versions or sequence numbers to detect stale or missing updates; timestamps alone are insufficient for ordering.</li><li>Reconnect with backoff and jitter, and show connection status.</li><li>After reconnect, replay from a supported cursor or refetch authoritative state.</li><li>Clean up subscriptions and connections when their owning scope ends.</li><li>Scope stream access on the server to the authenticated tenant and permissions.</li><li>Keep notifications separate from command success: do not assume an event will always arrive immediately.</li></ul></section><section id="section-7"><h2>7. Security and resilience</h2><p>Enforce authorization and tenant isolation in backend APIs and stream subscriptions. Route guards and hidden buttons improve UX but do not secure data.</p><p>Treat federated remote code as trusted executable code in the page. Remotes sharing a JavaScript runtime do not provide a security sandbox or complete fault isolation. Consider an iframe boundary if genuinely untrusted code must run.</p><ul><li>Load remotes with a timeout and a useful fallback page.</li><li>Keep navigation and unaffected domains usable when a remote fails to load.</li><li>Restrict remote locations to trusted deployment origins; validate manifests and configure CSP/CORS deliberately.</li><li>Use a defined session strategy, such as secure server-managed cookies with appropriate CSRF protections when applicable.</li><li>Record remote version, route, correlation ID, and error category in telemetry; exclude secrets and sensitive payloads.</li></ul></section><section id="section-8"><h2>8. Independent deployment and rollback</h2><p>Build each remote into an immutable, versioned artifact. A runtime manifest maps a remote name to its deployed artifact. Fetching configuration at runtime allows a remote release without rebuilding the shell, provided its contracts remain compatible.</p><pre><code>Change inventory -&gt; validate -&gt; build inventory -&gt; publish versioned artifact
+                 -&gt; integration smoke test -&gt; promote manifest entry
+Rollback         -&gt; restore previous compatible manifest entry</code></pre><p>Keep old assets available, define manifest caching, and ensure entry files reference matching chunks. A manifest change primarily affects future loads; it does not replace code already running in an open tab. Test reload and session behavior during rollback.</p><p>Independent deployability is something to demonstrate in CI and hosting, not just separate folders or localhost ports.</p></section><section id="section-9"><h2>9. Learning milestones</h2><ol><li><strong>Angular foundation:</strong> build an orders feature with routing, API access, signals, and RxJS. Exit: loading, empty, success, and error states work.</li><li><strong>Modular application:</strong> isolate orders and inventory into domain libraries. Exit: forbidden cross-domain imports fail validation.</li><li><strong>First federation:</strong> extract inventory into a remote. Exit: it loads by route and runs in local development.</li><li><strong>Communication:</strong> navigate between domains using IDs and explicit contracts. Exit: neither domain imports the other&#x27;s implementation.</li><li><strong>Live updates:</strong> add SSE and an event simulator. Exit: duplicates, disconnects, and stale updates are handled.</li><li><strong>Tenant and access controls:</strong> add two tenants and distinct roles. Exit: server tests reject cross-tenant reads and unauthorized actions.</li><li><strong>Delivery:</strong> publish remote artifacts and runtime configuration. Exit: inventory releases and rolls back without a shell rebuild.</li><li><strong>Production evidence:</strong> add telemetry, failure drills, performance measurements, and decision records. Exit: the interview demonstration is repeatable.</li></ol><p>Use these as stages, not a guaranteed eight-week schedule. Complete each exit criterion before increasing complexity.</p></section><section id="section-10"><h2>10. Meaningful verification</h2><ul><li>Unit-test domain rules such as shortage detection and incident transitions.</li><li>Validate API/event schemas and compatibility at integration boundaries.</li><li>Test tenant isolation and permission enforcement on the backend.</li><li>Exercise a critical journey across orders, inventory, and incidents.</li><li>Simulate an unavailable remote, dropped connection, duplicate event, and expired session.</li><li>Test the deployed shell against candidate remote versions before promotion.</li><li>Measure cold navigation time, transferred JavaScript, and remote loading errors; document your environment and baseline before setting budgets.</li></ul></section><section id="section-11"><h2>11. Ten-minute interview demonstration</h2><ol><li>Explain the product problem and domain ownership.</li><li>Open an order and trigger a live fulfillment update.</li><li>Simulate a stock shortage and inspect affected orders.</li><li>Create an incident and show a second operator receiving the update.</li><li>Deploy an inventory change without rebuilding the shell.</li><li>Simulate an inventory loading failure and keep orders usable.</li><li>Roll back inventory and explain what happens to existing tabs.</li><li>Explain when a modular monolith would be the better choice.</li></ol><p>Support the demo with a diagram, release evidence, a short runbook, measured performance, and architecture decision records. Present this honestly as a portfolio simulation with modeled team boundaries.</p></section><section id="section-12"><h2>12. Architecture decisions to write</h2><ul><li>Why microfrontends instead of a modular application?</li><li>Why these business boundaries and route-level composition?</li><li>Why Native Federation, and how are dependencies kept compatible?</li><li>Why domain-owned state rather than one global store?</li><li>Why SSE initially, and when would WebSockets be justified?</li><li>How are remote releases validated, promoted, and rolled back?</li><li>What security and failure isolation does the architecture actually provide?</li></ul><p>For each decision, record context, alternatives, choice, consequences, and a condition that would trigger reconsideration.</p></section><section id="section-13"><h2>13. Quick revision questions</h2><ul><li>Can one remote deploy without rebuilding the shell?</li><li>Can orders work when inventory fails to load?</li><li>Who owns each piece of state?</li><li>What happens after a stream disconnect or tenant switch?</li><li>How do duplicate and out-of-order events affect the UI?</li><li>How do you prevent a remote from importing another domain&#x27;s implementation?</li><li>What happens if the shared Angular versions are incompatible?</li><li>How does rollback behave for an already open browser tab?</li><li>Which evidence proves the architecture is worth its complexity?</li></ul></section><section id="section-14"><h2>14. Sources and implementation references</h2><ul><li><a href="https://nx.dev/docs/technologies/angular/introduction">Nx: Angular guidance</a></li><li><a href="https://nx.dev/docs/kb/micro-frontend-architecture">Nx: Microfrontend architecture</a></li><li><a href="https://webpack.js.org/concepts/module-federation/">Webpack: Module Federation concepts</a></li><li><a href="https://angular.dev/">Angular documentation</a></li></ul><p>Tooling guidance checked on 13 November 2026. The project design and learning sequence are recommendations; validate package compatibility when starting implementation.</p></section><section id="section-15"><h2>15. Build journal — Milestone 01 (historical foundation)</h2><p>Implemented on 13 November 2026: a local modular Angular application using Angular 21.2, compatible with the installed Node 24.14 runtime. Angular 22 requires a newer Node 24 release; this avoids changing the machine runtime. Refer to <a href="https://angular.dev/reference/versions">Angular version compatibility</a>.</p><p>This is the foundation stage, not yet a federated application. There is no backend, authentication, persisted data, or network event stream. Independent remote deployment remains a future milestone.</p><ul><li>Shell: responsive navigation, active-route indication, demo context, and route outlet.</li><li>Orders: six fixture orders, search, status filter, computed metrics, details, and manual status simulation.</li><li>Inventory: local stock overview, computed health counts, reservations, and reset.</li><li>UX states: empty search results, invalid order ID, unknown route, and terminal delivered state.</li><li>Boundaries: orders and inventory cannot import each other&#x27;s implementation or shell code.</li></ul></section><section id="section-16"><h2>16. Run, verify, and explore (foundation checkpoint)</h2><p>Run from the project root:</p><pre><code>npm ci
+npm start</code></pre><p>Open <code>http://localhost:4200</code>. Stop the development server with Ctrl+C.</p><pre><code>npm test
+npm run check:boundaries
+npm run build
+npm run docs</code></pre><ul><li><code>npm test</code>: meaningful fulfillment transition tests using Node&#x27;s built-in runner.</li><li><code>check:boundaries</code>: rejects domain imports outside their own folders and unapproved package aliases. The checker now uses the TypeScript AST and validates shell imports against public route aliases; adopt a full workspace graph rule as the repository grows.</li><li><code>build</code>: checks strict Angular templates and TypeScript, emits lazy chunks, and applies an initial bundle budget. The initial budget is provisional until measured against product needs.</li><li><code>docs</code>: regenerates standalone HTML from this Markdown, keeping both revision documents synchronized.</li></ul><p>Manual exercise: search for Priya, filter Shipped, open an order, advance its status, navigate back, reserve inventory until zero, and reset the data. Visit <code>/orders/unknown</code> and <code>/unknown</code> to inspect missing-resource states. Repeat at mobile width.</p></section><section id="section-17"><h2>17. Read the implementation in this order</h2><ol><li><code>mfe-shell/src/main.ts</code>, <code>bootstrap.ts</code>, and <code>app/app.routes.ts</code>: federation initialization, Angular bootstrap, runtime route loading, and input binding.</li><li><code>mfe-shell/src/app/app.ts</code> and <code>workspace-layout.ts</code>: root outlet, protected shell frame, and navigation without domain business state.</li><li><code>mfe-orders/src/app/order-rules.ts</code>: order model and pure fulfillment transition rule.</li><li><code>mfe-orders/src/app/orders-store.ts</code>: domain-owned writable state, read-only exposure, computed metrics, and simulation commands.</li><li><code>mfe-orders/src/app/orders-page.ts</code>: signal-based filters and template composition.</li><li><code>mfe-orders/src/app/order-detail.ts</code>: deriving the selected order from the route identifier.</li><li><code>mfe-inventory/src/app/inventory-page.ts</code>: isolated inventory state and reservations.</li><li><code>scripts/check-boundaries.mjs</code>: a check enforcing the chosen dependency direction.</li></ol><p>In Milestone 01, orders was root-scoped while inventory was component-scoped. Milestone 02 changes inventory to a root-provided domain store: both now survive route navigation and reset on browser refresh. Those store lifetimes remain in the current federated application.</p><p>The update button applies a synchronous local command. It is not SSE or a distributed event implementation. The inventory reservation does not update orders because there is no backend workflow coordinating them yet.</p></section><section id="section-18"><h2>18. Next implementation checkpoints</h2><ol><li>Completed in Milestone 02: orders API adapter and asynchronous loading, empty, success, and error states; fixtures remain behind the adapter.</li><li>Completed in Milestone 02: inventory-owned store and stock reservation invariant tests.</li><li>Add a lightweight backend and server-side validation before implementing real-time notifications.</li><li>Extract inventory with Native Federation, runtime remote configuration, loading fallback, and a separate build artifact.</li><li>Add server-sent events with reconnection, event deduplication, and state reconciliation.</li></ol><p>First explain why the shell does not own order state and why a lazy route alone does not provide independent deployment. Those are the architectural lessons to take from this milestone.</p></section><section id="section-19"><h2>19. Verification record — Milestone 01</h2><ul><li>Production build passed with strict template checking and separate lazy chunks for orders, inventory, details, and the missing-route page.</li><li>Initial production output: approximately 243.49 kB raw JavaScript/CSS, estimated 68.46 kB transfer. These are build estimates, not browser performance measurements.</li><li>Both fulfillment transition tests passed.</li><li>Boundary validation passed; a temporary cross-domain import was also confirmed to fail validation and then removed.</li><li>The development server compiled and returned the <code>/orders</code> application document successfully. This checks server readiness, not client-side rendering or interactions.</li><li>HTML navigation targets were validated. Browser interaction, accessibility, and responsive visual checks remain manual verification tasks.</li></ul><p>The initial install encountered a permissions error in the existing npm cache. Installation succeeded with <code>npm install --cache /private/tmp/pulseops-npm-cache --no-audit --no-fund</code>; a lockfile is included for repeatable <code>npm ci</code> installs. The production build required execution outside the sandbox after the sandboxed process aborted.</p></section><section id="section-20"><h2>20. Build journal — Milestone 02: asynchronous boundaries</h2><p>Orders now depends on an <code>OrdersApi</code> interface through an <code>ORDERS_API</code> injection token. The default token factory supplies <code>FixtureOrdersApi</code>. The adapter returns an Observable after 700 ms and can return fixtures, an empty collection, or an error. It makes no network request; this is an asynchronous simulation preparing a replaceable data boundary.</p><pre><code>OrdersPage / OrderDetail
+  -&gt; OrdersStore
+    -&gt; ORDERS_API token
+      -&gt; FixtureOrdersApi
+        -&gt; delayed success / empty / error</code></pre><p>The source files to read next:</p><ol><li><code>mfe-orders/src/app/orders-api.ts</code>: interface, scenario type, fixture adapter, and injection token factory.</li><li><code>mfe-orders/src/app/order-fixtures.ts</code>: fixture data, separated from state ownership.</li><li><code>mfe-orders/src/app/orders-store.ts</code>: request orchestration with RxJS and state exposure with signals.</li><li><code>mfe-orders/src/app/orders-page.ts</code>: explicit loading, error, dataset-empty, and success views.</li><li><code>mfe-orders/src/app/order-detail.ts</code>: missing order is shown only after a successful load.</li><li><code>mfe-inventory/src/app/inventory-store.ts</code>: domain-owned state that survives navigation.</li><li><code>mfe-inventory/src/app/stock-rules.ts</code>: stock validation and zero-floor reservation rule.</li></ol></section><section id="section-21"><h2>21. Why these asynchronous choices?</h2><ul><li><code>InjectionToken</code>: TypeScript interfaces disappear at runtime. A token gives Angular a runtime key for an adapter implementing the interface. Tests can replace it without changing the store.</li><li><code>Subject</code>: represents explicit load commands from the UI.</li><li><code>switchMap</code>: subscribes to the newest read and unsubscribes the previous one. This prevents a stale response from winning. It cancels the fixture timer; future HTTP cancellation depends on the transport. It does not undo server work or committed writes.</li><li><code>defer</code>: invokes the adapter at subscription time and converts a synchronous adapter exception into an observable error.</li><li>Inner <code>catchError</code>: turns this request&#x27;s failure into error state without terminating the outer command stream, so another load can recover.</li><li><code>takeUntilDestroyed</code>: cleans up the subscription when the owning injector is destroyed. A root-provided store lives beyond a page navigation.</li><li>Signals: expose current status, data, and computed totals to the template. RxJS owns asynchronous orchestration; signals own the current view state.</li></ul><pre><code>idle -&gt; loading -&gt; success (rows or empty collection)
+                -&gt; error -&gt; loading -&gt; success
+loading -&gt; another load -&gt; cancel previous subscription -&gt; latest result</code></pre><p>Loading clears previous data and hides order metrics. Simulation commands are guarded while data is unavailable. <code>ensureLoaded()</code> starts only from idle, so page navigation does not overwrite local changes or duplicate a pending load. Explicit load/reset controls discard local order changes and restore the selected fixture response. Empty/error results stay cached until the user explicitly loads again.</p><p>The demo retry button intentionally requests healthy fixtures. It demonstrates recovery; a production retry should repeat the actual failed operation. Do not apply latest-read-wins cancellation blindly to writes such as payment or stock reservation requests.</p></section><section id="section-22"><h2>22. Milestone 02 exercises and verification</h2><ol><li>Observe the 700 ms loading state on <code>/orders</code>.</li><li>Simulate API failure and recover using Retry with demo data.</li><li>Load an empty response, restore demo data, then search for a nonexistent customer. Explain why these are different states.</li><li>Select failure then success rapidly. The latest request should determine the final view.</li><li>Refresh <code>/orders/ORD-1048</code>. Loading should precede details. Refresh an unknown ID and wait for successful data loading before the missing-order message.</li><li>Reserve all four monitor units. Confirm further reservations cannot produce negative stock.</li><li>Navigate away from inventory and return; the reservation should remain. Refresh to reset browser memory.</li></ol><p>Automated checks cover fulfillment transitions, loading and caching, empty versus error state, failure recovery, stale-request suppression, injector cleanup, asynchronous fixture responses, shared inventory store identity, and stock validation. Run <code>npm test</code>, <code>npm run check:boundaries</code>, and <code>npm run build</code>. No new dependency is needed. Browser interactions and responsive rendering still require a manual pass.</p><p>Verification completed: all nine tests passed, domain boundary validation passed, the production build passed, and both HTML documents passed navigation checks. The final build reported approximately 245.96 kB initial raw output and 69.06 kB estimated transfer; these are build estimates rather than measured browser performance.</p><p>At the end of Milestone 02, backend validation, federation, and real-time SSE remained future work. Milestone 03 below adds federation; backend validation and business SSE remain outstanding.</p><p>References: <a href="https://rxjs.dev/api/operators/catchError">RxJS catchError</a>, <a href="https://rxjs.dev/api/operators/switchMap">RxJS switchMap</a>, and <a href="https://angular.dev/api/core/rxjs-interop/takeUntilDestroyed">Angular takeUntilDestroyed</a>.</p></section><section id="section-23"><h2>23. Separate project folders — preparation for federation (historical checkpoint)</h2><p>The workspace now contains three Angular applications. Each has its own <code>src/main.ts</code>, document template, app tsconfig, build target, and serve target. Dependencies and lockfile stay at the repository root; run installation there once.</p><pre><code>mfe-shell/
+  src/main.ts                      # Composition bootstrap
+  src/app/app.ts                   # Shell layout and outlet
+  src/app/not-found.ts
+  tsconfig.app.json
+mfe-orders/
+  src/main.ts                      # Standalone development bootstrap
+  src/app/app.ts                   # Minimal standalone frame
+  src/app/orders.routes.ts         # Public route surface
+  src/app/orders-page.ts
+  src/app/order-detail.ts
+  src/app/orders-store.ts
+  src/app/orders-api.ts
+  src/app/order-fixtures.ts
+  src/app/order-rules.ts
+  tsconfig.app.json
+mfe-inventory/
+  src/main.ts                      # Standalone development bootstrap
+  src/app/app.ts
+  src/app/inventory.routes.ts      # Public route surface
+  src/app/inventory-page.ts
+  src/app/inventory-store.ts
+  src/app/stock-rules.ts
+  tsconfig.app.json
+shared/styles.css
+angular.json
+package.json</code></pre><p>The root <code>tsconfig.app.json</code> forwards to the shell config for compatibility; Angular build targets use each project&#x27;s own config. The existing roadmap&#x27;s <code>apps/</code> and <code>libs/</code> tree is a conceptual future option; the active implementation uses these top-level <code>mfe-*</code> folders.</p></section><section id="section-24"><h2>24. How the shell composed local domains (historical checkpoint)</h2><pre><code>// mfe-shell/src/main.ts — route excerpt
+{
+  path: &#x27;orders&#x27;,
+  loadChildren: () =&gt; import(&#x27;@pulseops/orders/routes&#x27;)
+    .then(m =&gt; m.ORDERS_ROUTES)
+}
+
+// mfe-orders/src/app/orders.routes.ts — route excerpt
+{
+  path: &#x27;:id&#x27;,
+  loadComponent: () =&gt; import(&#x27;./order-detail&#x27;).then(m =&gt; m.OrderDetail)
+}</code></pre><p><code>loadChildren</code> loads a route array; it does not require an NgModule. The shell owns the <code>/orders</code> prefix and the domain owns its relative child routes, producing <code>/orders/:id</code>. <code>withComponentInputBinding()</code> stays enabled by the shell and the standalone orders bootstrap, so the detail component still receives its <code>id</code> parameter.</p><p>The aliases in root <code>tsconfig.json</code> resolve to local public route files during compilation. They are not URLs or runtime remote loaders. Both domain pages and their stores run inside the shell&#x27;s Angular application when accessed through port 4200. Domain standalone <code>main.ts</code> and wrapper <code>App</code> files do not run inside the shell.</p><p>The boundary checker now parses TypeScript import/export declarations and dynamic imports. Domains cannot import another project&#x27;s implementation. The shell may import its own files and the approved domain route aliases, but not domain stores or components directly. Shared styling has no TypeScript business dependencies.</p></section><section id="section-25"><h2>25. Separate-folder verification (historical checkpoint)</h2><pre><code>npm start                 # Shell on 4200; same as start:shell
+npm run start:orders      # Standalone orders on 4201
+npm run start:inventory   # Standalone inventory on 4202</code></pre><p>Use separate terminals if running all three. The shell requires only its own server; it loads locally compiled domain chunks. Preview applications have separate root injectors and memory, so changes do not synchronize between ports.</p><pre><code>npm test
+npm run check:boundaries
+npm run build             # Builds all three
+npm run build:shell
+npm run build:orders
+npm run build:inventory</code></pre><p>Build output is under <code>dist/mfe-shell/browser</code>, <code>dist/mfe-orders/browser</code>, and <code>dist/mfe-inventory/browser</code>. All three production builds and the existing nine tests passed after the move. Browser rendering and interactions remain manual verification tasks.</p><p>Development-server checks also passed: standalone orders and inventory compiled on 4201 and 4202 and served their application documents. Since 4200 was already occupied, the restructured shell was checked on 4300 using <code>npm run start:shell -- --port 4300</code>; an order deep link returned its application document successfully. These HTTP checks do not verify browser interactions. Restart any old development server after the workspace configuration change.</p><p>Separate folders and artifacts are preparation, not proof of runtime federation. Changing a domain&#x27;s source currently requires rebuilding the composed shell. The next federation checkpoint replaces the local route alias loader with a compatible runtime remote loader, then demonstrates an independent domain release without a shell rebuild.</p></section><section id="section-26"><h2>26. Milestone 03 — host and remoteEntry implementation</h2><p>The current application uses Native Federation v4 through the Angular 21-compatible adapter <code>@angular-architects/native-federation-v4@21.2.18</code>. Unlike Webpack federation, its generated entry is <code>remoteEntry.json</code>, containing metadata that points to executable JavaScript. The earlier local route-alias integration in sections 23–25 is historical and has been removed.</p><ul><li>Shell: <code>mfe-shell</code>, port 4200, no exposed business route of its own.</li><li>Orders remote: <code>mfe-orders</code>, port 4201, exposes <code>./Routes</code> exporting <code>ORDERS_ROUTES</code>.</li><li>Inventory remote: <code>mfe-inventory</code>, port 4202, exposes <code>./Routes</code> exporting <code>INVENTORY_ROUTES</code>.</li><li>Remote URL configuration: <code>mfe-shell/public/federation.manifest.json</code>.</li><li>Generated entries: <code>http://localhost:4201/remoteEntry.json</code> and <code>http://localhost:4202/remoteEntry.json</code>.</li></ul><pre><code>{
+  &quot;mfe-orders&quot;: &quot;http://localhost:4201/remoteEntry.json&quot;,
+  &quot;mfe-inventory&quot;: &quot;http://localhost:4202/remoteEntry.json&quot;
+}</code></pre><p>Each application&#x27;s <code>federation.config.mjs</code> defines its name, exposures, and shared dependencies. The adapter builds remote metadata, exposed modules, and shared runtime bundles. Never hand-author the generated remote entry. Deploy each complete browser output directory rather than copying only the entry file.</p></section><section id="section-27"><h2>27. Follow the host startup and remote route loading</h2><pre><code>shell index.html -&gt; shim + main.ts
+  -&gt; initFederation(&#x27;federation.manifest.json&#x27;)
+  -&gt; fetch host/remote metadata and prepare shared dependency import maps
+  -&gt; dynamic import(&#x27;./bootstrap&#x27;)
+  -&gt; bootstrap(runtime) -&gt; Angular App + provideRouter(createRoutes(runtime))
+  -&gt; /orders -&gt; loadRemoteModule(&#x27;mfe-orders&#x27;, &#x27;./Routes&#x27;)
+  -&gt; ORDERS_ROUTES -&gt; lazy order component -&gt; shell RouterOutlet</code></pre><p>The shell&#x27;s <code>main.ts</code> deliberately avoids importing Angular components before federation initialization finishes. The original Angular setup lives in <code>bootstrap.ts</code>. The remote entry metadata can be fetched at startup even though exposed business modules load on route activation.</p><pre><code>// mfe-shell/src/app/app.routes.ts — simplified happy path
+export const createRoutes = ({ loadRemoteModule }: NativeFederationResult): Routes =&gt; [
+  {
+    path: &#x27;orders&#x27;,
+    loadChildren: () =&gt; loadRemoteModule(&#x27;mfe-orders&#x27;, &#x27;./Routes&#x27;)
+      .then(module =&gt; module.ORDERS_ROUTES)
+  }
+];</code></pre><p>The actual implementation validates the exported route array and catches entry/exposed-route loading failures. The loader is taken from the initialized runtime rather than the deprecated global helper, giving the route factory an explicit runtime instance. <code>withComponentInputBinding()</code> remains enabled for the composed order-detail route.</p><p>When a domain is opened directly, its own <code>main.ts</code> initializes federation with an empty remote map, then starts its standalone Angular wrapper. When consumed by the shell, those standalone entry points do not execute; the host loads only the exposed routes and referenced feature code. Separate tabs and standalone ports have independent in-memory state.</p></section><section id="section-28"><h2>28. Sharing, failure behavior, and architecture boundaries</h2><p>Angular core/common/router/platform-browser and RxJS use compatible singleton sharing and version requirements. Angular secondary entry points, including signal/RxJS interop, are included. This aligns the runtime and injector identities; it does not merge business stores across separate browser applications or provide a security sandbox.</p><p>The TypeScript aliases to domain route files were removed from root <code>tsconfig.json</code>. The boundary checker rejects imports of another application&#x27;s source, including the shell importing a domain route directly. Milestone 04 permits the explicit shared auth-contract alias; it does not allow direct application-to-application imports. Remote names and exposed keys are runtime contracts rather than TypeScript source dependencies.</p><p>Missing remote entries are tolerated during initialization. Loading an unavailable exposed route returns a shell-owned fallback. Available domains remain navigable. Restore the remote and use Reload and retry: the implementation intentionally reloads the page to recreate runtime and cached route configuration. This fallback covers entry/exposed-route loading, not arbitrary component exceptions or every later nested chunk failure. A fatal host initialization failure is displayed in the root element.</p><p>The shared stylesheet is compiled into each app. A remote-only feature change can be built independently, but editing shared global styles still requires a deliberate compatibility/release decision. Production rollback, immutable hosting, and a release pipeline remain to be implemented.</p></section><section id="section-29"><h2>29. Run and verify federation</h2><p>Install once at the root, then use three terminals, preferably remotes first:</p><pre><code>npm ci
+npm run start:orders
+npm run start:inventory
+npm run start:shell</code></pre><p>Open the shell on <code>http://localhost:4200</code>. If the port is occupied, restart the old server or use <code>npm run start:shell -- --port 4300</code>. The remotes must be reachable to use their features; the host no longer has locally compiled domain features as a fallback.</p><p><code>angular.json</code> now has federation <code>build</code> and <code>serve</code> wrappers, underlying <code>esbuild</code> and <code>serve-original</code> targets, and per-project ports. Do not bypass the wrappers for normal development, because federation metadata must also be built.</p><pre><code>npm test
+npm run check:boundaries
+npm run build
+npm run test:e2e</code></pre><p>Production output stays under <code>dist/&lt;project&gt;/browser</code>. Federation shared bundles are additional assets: the initial application bundle size alone no longer measures the complete cold-load cost. Inspect total browser transfer for performance decisions.</p><p>The browser test suite uses installed Google Chrome and launches temporary artifact servers on 4300/4201/4202. It checks generated remote entries, absence of domain fixtures from shell JavaScript, cross-origin loading of both exposed modules, routed state, direct order ID binding, standalone bootstraps, and failure recovery. <code>scripts/serve-build.mjs</code> is a local verification server, not production hosting.</p><p>An external-server mode runs the interaction checks against already started development servers, with shell on 4300:</p><pre><code>PULSEOPS_E2E_EXTERNAL=1 npm run test:e2e -- --grep &#x27;shell loads|direct remote|unavailable&#x27;</code></pre><p>Verification: all three production builds, nine domain/store tests, and four production-artifact browser checks passed. The three browser interaction checks also passed against the Native Federation development servers. The shell test server used 4300 because an existing process occupied 4200. Browser requests confirmed both remoteEntry.json files and both exposed route modules were fetched from remote origins. A blocked inventory entry left orders usable; restoring it and reloading recovered inventory.</p><p>Sources: <a href="https://native-federation.com/docs/v4/angular-adapter/runtime/">Native Federation Angular runtime</a>, <a href="https://native-federation.com/docs/v4/angular-adapter/builder/">Angular adapter builder</a>, and <a href="https://native-federation.com/docs/v4/angular-adapter/getting-started/">Angular adapter setup</a>.</p></section><section id="section-30"><h2>30. Native Federation, CLI commands, and an Nx workflow</h2><p><strong>Current repository:</strong> Angular CLI 21.2 with Native Federation v4. Nx is not installed: there is no <code>nx.json</code> or <code>nx</code> dependency. The commands in the Nx recipe below are documentation, not a migration performed on this workspace. The existing runtime federation implementation remains unchanged.</p><p><strong>Three distinct responsibilities</strong></p><ul><li>Angular compiles components, checks templates, and runs the application/router.</li><li>Native Federation builds remote metadata and exposed modules, prepares shared dependency resolution, and loads remote exports in the browser.</li><li>Nx can orchestrate project tasks, cache configured build outputs, visualize dependencies, and select affected work. Adding Nx does not replace federation or automatically create remote entries.</li></ul><p><strong>How Native Federation works — build time</strong></p><ol><li>Each project supplies <code>federation.config.mjs</code>: a name, shared package requirements, and optional exposures.</li><li>Orders exposes <code>./Routes</code> from its <code>orders.routes.ts</code>. Inventory exposes the same key from its own route file.</li><li>The federation builder wraps Angular&#x27;s application builder and emits <code>remoteEntry.json</code>, exposed JavaScript, shared dependency bundles, and normal browser assets.</li><li>The shell is built without importing order/inventory source. Its own entry describes its shared runtime requirements; it exposes no business route.</li></ol><p><strong>How Native Federation works — browser time</strong></p><ol><li>The browser loads the shell document, import-map shim, and <code>main.ts</code> entry bundle.</li><li><code>initFederation(&#x27;federation.manifest.json&#x27;, ...)</code> reads deployment locations and metadata, then prepares compatible shared-module mappings.</li><li>An import map associates bare package names such as <code>@angular/core</code> with generated module URLs. Our configuration uses <code>es-module-shims</code> in shim mode.</li><li>The shell dynamically imports <code>bootstrap.ts</code> only after initialization, then calls <code>bootstrapApplication</code> with the returned runtime.</li><li>Visiting <code>/orders</code> invokes the runtime&#x27;s <code>loadRemoteModule(&#x27;mfe-orders&#x27;, &#x27;./Routes&#x27;)</code> and obtains <code>ORDERS_ROUTES</code> from the remote JavaScript module.</li><li>Angular mounts those child routes, lazy-loads the requested page, and renders it inside the shell outlet. <code>/orders/:id</code> still binds to the detail component&#x27;s input.</li></ol><pre><code>Build: config -&gt; federation + Angular builders -&gt; remoteEntry.json + JS
+Browser: manifest -&gt; metadata -&gt; shared import map -&gt; Angular bootstrap
+         -&gt; loadRemoteModule(remote name, exposed key)
+         -&gt; exported route array -&gt; remote page in host outlet
+Nx, if adopted: task graph -&gt; run/cache those same build targets</code></pre><p><strong>CLI and edits used in this implementation</strong></p><p>We installed the adapter and import-map shim through npm, then manually edited the build targets, federation configs, bootstrap split, manifest, route loading, and fallback. We did not run an Nx generator or the federation init schematic to produce the checked-in configuration. This dependency command reproduces the selected application packages:</p><pre><code>npm install --save-exact @angular-architects/native-federation-v4@21.2.18 @angular/localize@21.2.26 es-module-shims@2.8.4</code></pre><p>The existing lockfile is the normal starting point for another checkout:</p><pre><code>npm ci
+npm run start:orders
+npm run start:inventory
+npm run start:shell</code></pre><p>Start those three servers in separate terminals. Use <code>npm run build</code> to generate all three complete browser outputs, then <code>npm run test:e2e</code> for the production-artifact checks after stopping other servers on the test ports.</p><p><strong>Equivalent scaffolding commands for a fresh Angular 21 workspace</strong></p><p>These are an alternative to the manual setup, not additional steps to rerun against the already federated PulseOps projects. They assume three existing standalone Angular applications with these project names and an installed matching adapter:</p><pre><code>npx ng generate @angular-architects/native-federation-v4:init --project=mfe-orders --port=4201 --type=remote
+npx ng generate @angular-architects/native-federation-v4:init --project=mfe-inventory --port=4202 --type=remote
+npx ng generate @angular-architects/native-federation-v4:init --project=mfe-shell --port=4200 --type=dynamic-host</code></pre><p><code>--project</code> selects the Angular project. <code>--port</code> sets the development endpoint. <code>--type=remote</code> scaffolds a producer; <code>dynamic-host</code> scaffolds a host that reads a deployment manifest. The generated starter exposure is typically <code>./Component</code>; change it to <code>./Routes</code> and point it at your domain route file to match PulseOps. Inspect the generated bootstrap, polyfills, manifest assets, shared packages, and builder targets rather than assuming scaffolding has completed all product integration work.</p><p>For Angular 21, this project uses the <code>-v4</code> package name. Angular 22 documentation uses <code>@angular-architects/native-federation</code> without that suffix. Choose a compatible adapter rather than copying a package name from a different Angular major.</p><p><strong>Optional Nx adoption for this already federated workspace</strong></p><p>Nx&#x27;s Angular CLI migration entry point is:</p><pre><code>npx nx@latest init</code></pre><p>This command changes repository configuration; it has not been executed here. Use the installed Node/Angular/Nx compatibility guides before adoption. Nx&#x27;s current matrix lists Angular 21.2 support from Nx 22.6 onward; keep installed <code>nx</code> and <code>@nx/*</code> package versions aligned. The standard Angular CLI migration can preserve the current top-level <code>mfe-*</code> folder layout while moving project targets into Nx configuration. An integrated migration is a separate choice that can relocate applications; that is not needed just to gain task orchestration.</p><p>After adoption, inspect the discovered project names and target definitions before running them:</p><pre><code>npx nx show projects
+npx nx show project mfe-shell
+npx nx graph
+npx nx run mfe-orders:build
+npx nx run mfe-inventory:build
+npx nx run mfe-shell:build
+npx nx run-many -t build -p mfe-shell,mfe-orders,mfe-inventory
+npx nx run mfe-orders:serve
+npx nx run mfe-inventory:serve
+npx nx run mfe-shell:serve</code></pre><p>Run serve commands in separate terminals. Confirm each Nx target still uses the federation build/serve wrapper and its correct underlying target, paths, and port. Nx executes those configured targets; <code>loadRemoteModule()</code> still runs later in the browser. Application route/exposure files do not need an Nx-specific runtime loader.</p><p><strong>Nx generator equivalent for fresh, unfederated application projects</strong></p><p>When using a compatible Nx setup that exposes the adapter&#x27;s application schematic, the documented application init entry point is:</p><pre><code>npx nx g @angular-architects/native-federation-v4:init --project=mfe-orders --port=4201 --type=remote
+npx nx g @angular-architects/native-federation-v4:init --project=mfe-inventory --port=4202 --type=remote
+npx nx g @angular-architects/native-federation-v4:init --project=mfe-shell --port=4200 --type=dynamic-host</code></pre><p>These setup examples have not been run or validated in an Nx workspace here. Generator integration is version-sensitive: inspect <code>npx nx list @angular-architects/native-federation-v4</code> and the installed package&#x27;s collection before execution. The inspected 21.2.18 package has an application <code>init</code> schematic and a separate <code>native-federation</code> generator for a library. That library generator is not the command to turn the shell into a dynamic host.</p><p><strong>Caching and affected builds require explicit design</strong></p><p>Cache complete build outputs, including shared assets and remoteEntry metadata. Include federation configs, relevant TypeScript configs, root package/lock files, and <code>shared/styles.css</code> in task inputs. Inspect Nx&#x27;s inferred inputs before narrowing them; a shared dependency or stylesheet change can affect multiple artifacts. Serve targets are long-running processes, not reusable build results.</p><p>With Git available, an affected-build example is:</p><pre><code>npx nx affected -t build --base=origin/main --head=HEAD</code></pre><p>Replace <code>origin/main</code> with the real CI base revision. Runtime remote-name strings do not create normal source-import edges from the shell to remotes. Preserve independent builds, then explicitly run host/remote compatibility browser checks when a remote changes. Do not conclude that an unchanged shell is integration-safe just because its own build is unaffected. Existing npm-based domain and browser tests remain separate until you deliberately register equivalent Nx targets.</p><p><strong>Teach it back</strong></p><ul><li>Which tool emits remoteEntry.json? The federation builder, as part of each project build.</li><li>Which tool schedules or caches builds? Nx, if adopted and configured.</li><li>Does Nx load the remote in the browser? No; the initialized federation runtime does.</li><li>Why is bootstrap.ts imported asynchronously? Shared-module resolution must be ready before Angular code executes.</li><li>Are manifest keys, exposure keys, and exported symbols interchangeable? No: <code>mfe-orders</code>, <code>./Routes</code>, and <code>ORDERS_ROUTES</code> identify different layers of the contract.</li><li>Why can the shell&#x27;s affected build be skipped while integration tests must still run? A remote can change its runtime contract without changing host source.</li></ul><p><strong>References checked on 13 November 2026:</strong> <a href="https://native-federation.com/docs/v4/angular-adapter/schematics/">adapter schematics</a>, <a href="https://native-federation.com/docs/v4/angular-adapter/runtime/">runtime</a>, <a href="https://nx.dev/docs/kb/migrate-angular-cli-to-nx">Nx Angular CLI adoption</a>, <a href="https://nx.dev/docs/kb/angular-nx-version-matrix">Nx Angular compatibility</a>, and <a href="https://nx.dev/docs/reference/nx-commands">Nx task commands</a>. The installed adapter sources were also inspected; Nx commands are a documented recipe, not executed verification.</p></section><section id="section-31"><h2>31. Milestone 04 — demo login, shared session, and startup feedback</h2><p>The current application has a working client-side demo sign-in flow. It does not have a backend or a trusted authentication session. Use only <code>operator@pulseops.demo</code> with password <code>PulseOpsDemo!</code>; the sample credential check exists to teach navigation and shared state. Server-side identity verification and authorization remain future work.</p><p><strong>Start and sign in</strong></p><pre><code>npm ci
+npm run start:all</code></pre><p>The launcher checks 4200/4201/4202 before starting all three development servers. It reports conflicts rather than connecting to an old server with mismatched federation artifacts. Stop old processes first. Alternatively use the individual start commands in separate terminals. Open <code>http://localhost:4200</code> and keep that hostname consistent: <code>127.0.0.1</code> is a different browser storage origin.</p><p>The initial document shows startup progress while federation initializes. A fatal startup failure shows recovery information instead of an empty root. Missing remote-route modules still use the separate shell-owned remote fallback.</p><p><strong>Follow the route and session flow</strong></p><pre><code>/orders/ORD-1048
+  -&gt; shell guard checks demo session
+  -&gt; anonymous: /login?returnUrl=...
+  -&gt; valid demo credentials
+  -&gt; populate shell DemoSession
+  -&gt; navigate to allowlisted return URL
+  -&gt; guarded WorkspaceLayout
+  -&gt; load remote routes -&gt; order detail</code></pre><p>Direct <code>/login</code> returns to <code>/orders</code> after sign-in. A protected inventory URL returns to inventory. The return-URL helper accepts internal orders, one order-detail segment, and inventory paths; invalid, external, login-loop, or unsupported destinations fall back to <code>/orders</code>. The session is updated before the destination guard runs.</p><p><strong>Ownership and dependency injection</strong></p><ul><li><code>mfe-shell/src/app/app.ts</code>: root router outlet. It no longer owns the workspace sidebar.</li><li><code>mfe-shell/src/app/workspace-layout.ts</code>: protected frame, current user, navigation, and Sign out.</li><li><code>mfe-shell/src/app/auth/login/login.ts</code>: validated form, submitting state, credential error, and post-login navigation.</li><li><code>mfe-shell/src/app/auth/demo-session.ts</code>: demo identity, restoration, expiry, and logout lifecycle.</li><li><code>mfe-shell/src/app/auth/auth.guards.ts</code>: public-login and protected-route decisions.</li><li><code>shared/auth-contract/index.ts</code>: <code>SessionContext</code>, user type, and the <code>SESSION_CONTEXT</code> injection token.</li></ul><p>All three federation configs map <code>@pulseops/auth-contract</code> as a singleton. Angular tokens are runtime objects: importing independently bundled copies would create different token identities. The shell binds that token to its single <code>DemoSession</code> instance with <code>useExisting</code>; composed remote pages read the same current user through the token without importing the shell service. Remote standalone wrappers instead supply the explicit <code>preview@pulseops.demo</code> fixture session.</p><p><strong>Persistence, expiry, and logout</strong></p><p>A 30-minute marker in this tab&#x27;s <code>sessionStorage</code> restores the demo identity after refresh. It contains an email and expiry, not a password or authentication token. The marker is untrusted client-side data and must not be treated as a production credential. Reload resets order/inventory fixtures even if the demo session is restored.</p><p>Sign out clears the marker and reloads the document. This also destroys root-scoped remote stores and pending fixture requests. Expiry returns to login, preserving an allowed destination for another sign-in. Changing tabs or origins does not share an in-memory Angular service. Production logout/expiry will also need backend invalidation.</p><p><strong>Manual verification exercise</strong></p><ol><li>Open inventory while signed out. Confirm public login appears without the workspace sidebar.</li><li>Submit missing/invalid values and incorrect sample credentials. Confirm the form stays on login with useful messages.</li><li>Sign in with the sample account. Confirm navigation returns to inventory.</li><li>Open orders and its details. Confirm both remotes display the same host demo email.</li><li>Refresh the host. Confirm the same tab restores the unexpired demo identity.</li><li>Reserve stock, sign out, sign in again, and confirm domain fixtures reset.</li><li>Try an external or unsupported return URL. Confirm the destination defaults to orders.</li><li>Open a standalone remote and compare its preview identity with the host session.</li></ol><p>The browser suite covers login/session behavior as well as federation. Run <code>npm test</code>, <code>npm run check:boundaries</code>, <code>npm run build</code>, and <code>npm run test:e2e</code>. Read the actual command output for current pass/fail results; this section does not replace the verification report.</p><p>Verification completed after the interrupted login implementation: all three production builds, 11 unit/store tests, boundary checks, and 14 browser tests passed. The same 14 browser checks passed against the development servers launched by <code>start:all</code> on 4200/4201/4202. Startup-delay and fatal-manifest/retry checks are included. A fresh build/restart worked; the original reported blank page was not reproduced, so a specific original browser error was not established.</p></section><section id="section-32"><h2>32. A concrete shared service — NotificationService</h2><p>Added on 14 November 2026: <code>shared/notifications/index.ts</code> exports <code>NotificationService</code> through the <code>@pulseops/notifications</code> alias. This is a small platform service for UI notices, separate from the session contract and the domain-owned order/inventory stores. No new npm package is needed.</p><pre><code>import { inject } from &#x27;@angular/core&#x27;;
+import { NotificationService } from &#x27;@pulseops/notifications&#x27;;
+
+const notifications = inject(NotificationService);
+const id = notifications.notify(&#x27;orders&#x27;, &#x27;Order status changed.&#x27;);
+notifications.dismiss(id);
+notifications.clear();</code></pre><p><strong>How one instance is shared</strong></p><p>The service uses <code>@Injectable({ providedIn: &#x27;root&#x27; })</code>. The root TypeScript path maps <code>@pulseops/notifications</code> to the shared source, and every federation config includes that alias in singleton <code>sharedMappings</code> alongside <code>@pulseops/auth-contract</code>. Sharing the module preserves class-token identity; Angular then resolves the service from the composed host application&#x27;s root injector. Providing the class again in a remote route or component would create another instance and defeat that lifetime choice.</p><pre><code>// Federation config excerpt in shell and both remotes.
+sharedMappings: mappingsFromWorkspace({
+  singleton: true,
+  strictVersion: true
+}).only([
+  &#x27;@pulseops/auth-contract&#x27;,
+  &#x27;@pulseops/notifications&#x27;
+]).get()</code></pre><p><strong>Service API and ownership</strong></p><ul><li><code>notify(source, message)</code> creates a notice and returns its numeric ID. Source is <code>shell</code>, <code>orders</code>, or <code>inventory</code>.</li><li><code>messages()</code> exposes the read-only signal collection, newest first, capped at five entries.</li><li><code>latest()</code> is computed from the queue.</li><li><code>dismiss(id)</code> removes one notice; <code>clear()</code> empties the queue.</li><li>The shell owns presentation in the workspace notification center. Orders and inventory publish local action feedback and show the latest shared notice through <code>data-testid=&quot;remote-notification&quot;</code>.</li></ul><pre><code>Shell welcome / Orders status action / Inventory reserve or reset
+  -&gt; shared NotificationService.notify(...)
+  -&gt; one root-owned signal queue
+  -&gt; shell notification center + remote latest-notice readouts
+Shell dismiss/clear -&gt; same queue -&gt; all consumers update</code></pre><p><strong>Try it and explain it</strong></p><ol><li>Restart all three servers after changing shared federation mappings: <code>npm run start:all</code>.</li><li>Sign in. Observe the shell welcome notice.</li><li>Simulate an order update, navigate to inventory, and reserve stock. The shell center should show messages from both domains, subject to the five-entry limit.</li><li>Dismiss the latest message or clear all messages in the shell. The remote&#x27;s latest-notice readout should change too, demonstrating shared state rather than identical duplicated services.</li><li>Navigate away and return; the queue should remain in that application. Reload or sign out; it resets.</li><li>Open a standalone remote on its own port. Its root wrapper shows that application&#x27;s latest notice. It uses the same service code but a separate Angular application injector and memory.</li></ol><p>A singleton federation mapping does not synchronize browser tabs, separate standalone applications, or backend processes. Notifications are UI feedback, not authoritative order state, stock reservations, or distributed events. Keep business rules inside their domain stores and use backend contracts for cross-domain consistency.</p><p>For verification, run the existing unit, boundary, build, and browser commands and review their current output. This documentation describes the intended demonstration and does not substitute for passing runtime checks.</p><p>Verification for the shared service on 14 November 2026: all three production builds, 13 unit/store tests, dependency boundary checks, and 17 browser tests passed. Browser tests specifically demonstrated cross-remote notification delivery, shell dismiss/clear updating remote consumers, standalone isolation, and notification reset after logout. Tests used temporary remote ports 4401 and 4402 to avoid stopping the already running development servers.</p></section><section id="section-33"><h2>33. Production engineering baseline — lint, Sonar, coverage, and CI</h2><p>The workspace now pins a supported ESLint10 toolchain, angular-eslint21 for the installed Angular major, type-aware typescript-eslint, Prettier, c8 coverage, and the Sonar npm scanner. <code>.nvmrc</code> selects Node24; <code>package.json</code> requires Node24.14+ within that major. These are local/CI quality controls; backend authentication and production operating controls remain future work.</p><pre><code>npm run lint
+npm run format:check
+npm run check:boundaries
+npm run test:coverage
+npm run quality
+npm run verify</code></pre><p>Read <code>eslint.config.mjs</code>, <code>tsconfig.eslint.json</code>, <code>.prettierrc.json</code>, <code>.c8rc.json</code>, <code>scripts/coverage-check.mjs</code>, <code>sonar-project.properties</code>, <code>.github/workflows/quality.yml</code>, and <code>docs/production-readiness.md</code> in that order. ESLint checks TypeScript and inline Angular templates, including promise handling, unsafe types, and accessibility. Template <code>$any</code> escapes were replaced with typed template references; browser artifact JSON is now checked at runtime before typed use. The boundary checker also validates shared modules and import-type references, rather than only domain source folders.</p><p>Coverage maps the temporary test JavaScript back to original TypeScript sources. All runtime app/shared sources remain in the full report; untested UI/bootstrap/session files are visible. A separate 80% line gate covers seven explicitly listed core files. Passing that focused gate must not be presented as 80% full-app coverage. Production browser contracts are a different gate and are not added to unit LCOV coverage.</p><p>SonarQube for IDE is the current name for SonarLint. Workspace extension recommendations and ESLint/formatter settings are configured, preserving the existing editor theme. A real connected-mode binding needs the actual server/project and credentials in the IDE&#x27;s credential storage. No fake connection IDs or tokens are committed.</p><p>The scanner requires explicit <code>SONAR_HOST_URL</code>, <code>SONAR_PROJECT_KEY</code>, and <code>SONAR_TOKEN</code>, plus the real organization for SonarQube Cloud. It imports <code>coverage/lcov.info</code> and waits for the server-side quality gate. Missing configuration fails clearly. No remote analysis has been run. The CI scan job is opt-in through <code>SONAR_ENABLED=true</code>, excludes fork PRs, and reads the token from secrets.</p><p>CI runs local quality checks, all three production builds, and browser contracts, then retains diagnostics and complete build artifacts. Action references are pinned to verified commits. Merge requirements and the server&#x27;s new-code policy still need repository/server administration; they are not activated by merely checking in YAML or a properties file.</p><p>See <code>docs/production-readiness.md</code> for the prioritized path beyond tooling: verified identity, authorized/atomic domain APIs, tenant isolation, immutable asset publication, compatibility/rollback evidence, telemetry, performance, and accessibility.</p><p>Verification on 14 November 2026: root ESLint and all three Angular lint targets, type checking, formatting, strengthened boundaries, 14 unit/store tests with source-mapped coverage, all three production builds, and 17 browser tests passed. Full-app unit line coverage was 22.96%; the explicit core gate passed at 80% or more for each listed file. The server scan remains unconfigured; no remote Sonar or GitHub quality-gate result is claimed.</p></section><footer>Standalone HTML · No external assets required · Print to save as PDF.</footer></main></div></body></html>

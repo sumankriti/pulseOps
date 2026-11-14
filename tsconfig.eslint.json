@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "types": ["node"],
+    "allowImportingTsExtensions": true
+  },
+  "include": ["mfe-*/src/**/*.ts", "shared/**/*.ts", "e2e/**/*.ts", "playwright.config.ts"],
+  "exclude": ["node_modules", "dist", ".angular", "coverage"]
+}
