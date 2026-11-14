@@ -1,0 +1,298 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "cli": {
+    "analytics": false
+  },
+  "projects": {
+    "mfe-shell": {
+      "projectType": "application",
+      "root": "mfe-shell",
+      "sourceRoot": "mfe-shell/src",
+      "architect": {
+        "build": {
+          "builder": "@angular-architects/native-federation-v4:build",
+          "options": {
+            "projectName": "mfe-shell",
+            "tsConfig": "mfe-shell/tsconfig.federation.json",
+            "cacheExternalArtifacts": true,
+            "entryPoints": ["mfe-shell/src/main.ts"]
+          },
+          "configurations": {
+            "production": {
+              "target": "mfe-shell:esbuild:production"
+            },
+            "development": {
+              "target": "mfe-shell:esbuild:development",
+              "dev": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular-architects/native-federation-v4:build",
+          "options": {
+            "projectName": "mfe-shell",
+            "tsConfig": "mfe-shell/tsconfig.federation.json",
+            "cacheExternalArtifacts": true,
+            "entryPoints": ["mfe-shell/src/main.ts"],
+            "target": "mfe-shell:serve-original:development",
+            "rebuildDelay": 500,
+            "dev": true,
+            "devServer": true,
+            "port": 4200
+          }
+        },
+        "esbuild": {
+          "builder": "@angular/build:application",
+          "options": {
+            "outputPath": "dist/mfe-shell",
+            "browser": "mfe-shell/src/main.ts",
+            "index": "mfe-shell/src/index.html",
+            "tsConfig": "mfe-shell/tsconfig.app.json",
+            "styles": ["shared/styles.css"],
+            "polyfills": ["es-module-shims"],
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "mfe-shell/public",
+                "output": "/"
+              }
+            ]
+          },
+          "configurations": {
+            "production": {
+              "outputHashing": "all",
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "350kB",
+                  "maximumError": "500kB"
+                }
+              ]
+            },
+            "development": {
+              "optimization": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve-original": {
+          "builder": "@angular/build:dev-server",
+          "configurations": {
+            "development": {
+              "buildTarget": "mfe-shell:esbuild:development"
+            },
+            "production": {
+              "buildTarget": "mfe-shell:esbuild:production"
+            }
+          },
+          "defaultConfiguration": "development",
+          "options": {
+            "port": 4200,
+            "host": "127.0.0.1",
+            "headers": {
+              "Access-Control-Allow-Origin": "*"
+            }
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": ["mfe-shell/src/**/*.ts", "mfe-shell/src/**/*.html"],
+            "maxWarnings": 0
+          }
+        }
+      }
+    },
+    "mfe-orders": {
+      "projectType": "application",
+      "root": "mfe-orders",
+      "sourceRoot": "mfe-orders/src",
+      "architect": {
+        "build": {
+          "builder": "@angular-architects/native-federation-v4:build",
+          "options": {
+            "projectName": "mfe-orders",
+            "tsConfig": "mfe-orders/tsconfig.federation.json",
+            "cacheExternalArtifacts": true,
+            "entryPoints": ["mfe-orders/src/main.ts"]
+          },
+          "configurations": {
+            "production": {
+              "target": "mfe-orders:esbuild:production"
+            },
+            "development": {
+              "target": "mfe-orders:esbuild:development",
+              "dev": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular-architects/native-federation-v4:build",
+          "options": {
+            "projectName": "mfe-orders",
+            "tsConfig": "mfe-orders/tsconfig.federation.json",
+            "cacheExternalArtifacts": true,
+            "entryPoints": ["mfe-orders/src/main.ts"],
+            "target": "mfe-orders:serve-original:development",
+            "rebuildDelay": 500,
+            "dev": true,
+            "devServer": true,
+            "port": 4201
+          }
+        },
+        "esbuild": {
+          "builder": "@angular/build:application",
+          "options": {
+            "outputPath": "dist/mfe-orders",
+            "browser": "mfe-orders/src/main.ts",
+            "index": "mfe-orders/src/index.html",
+            "tsConfig": "mfe-orders/tsconfig.app.json",
+            "styles": ["shared/styles.css"],
+            "polyfills": ["es-module-shims"]
+          },
+          "configurations": {
+            "production": {
+              "outputHashing": "all",
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "350kB",
+                  "maximumError": "500kB"
+                }
+              ]
+            },
+            "development": {
+              "optimization": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve-original": {
+          "builder": "@angular/build:dev-server",
+          "configurations": {
+            "development": {
+              "buildTarget": "mfe-orders:esbuild:development"
+            },
+            "production": {
+              "buildTarget": "mfe-orders:esbuild:production"
+            }
+          },
+          "defaultConfiguration": "development",
+          "options": {
+            "port": 4201,
+            "host": "127.0.0.1",
+            "headers": {
+              "Access-Control-Allow-Origin": "*"
+            }
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": ["mfe-orders/src/**/*.ts", "mfe-orders/src/**/*.html"],
+            "maxWarnings": 0
+          }
+        }
+      }
+    },
+    "mfe-inventory": {
+      "projectType": "application",
+      "root": "mfe-inventory",
+      "sourceRoot": "mfe-inventory/src",
+      "architect": {
+        "build": {
+          "builder": "@angular-architects/native-federation-v4:build",
+          "options": {
+            "projectName": "mfe-inventory",
+            "tsConfig": "mfe-inventory/tsconfig.federation.json",
+            "cacheExternalArtifacts": true,
+            "entryPoints": ["mfe-inventory/src/main.ts"]
+          },
+          "configurations": {
+            "production": {
+              "target": "mfe-inventory:esbuild:production"
+            },
+            "development": {
+              "target": "mfe-inventory:esbuild:development",
+              "dev": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular-architects/native-federation-v4:build",
+          "options": {
+            "projectName": "mfe-inventory",
+            "tsConfig": "mfe-inventory/tsconfig.federation.json",
+            "cacheExternalArtifacts": true,
+            "entryPoints": ["mfe-inventory/src/main.ts"],
+            "target": "mfe-inventory:serve-original:development",
+            "rebuildDelay": 500,
+            "dev": true,
+            "devServer": true,
+            "port": 4202
+          }
+        },
+        "esbuild": {
+          "builder": "@angular/build:application",
+          "options": {
+            "outputPath": "dist/mfe-inventory",
+            "browser": "mfe-inventory/src/main.ts",
+            "index": "mfe-inventory/src/index.html",
+            "tsConfig": "mfe-inventory/tsconfig.app.json",
+            "styles": ["shared/styles.css"],
+            "polyfills": ["es-module-shims"]
+          },
+          "configurations": {
+            "production": {
+              "outputHashing": "all",
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "350kB",
+                  "maximumError": "500kB"
+                }
+              ]
+            },
+            "development": {
+              "optimization": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve-original": {
+          "builder": "@angular/build:dev-server",
+          "configurations": {
+            "development": {
+              "buildTarget": "mfe-inventory:esbuild:development"
+            },
+            "production": {
+              "buildTarget": "mfe-inventory:esbuild:production"
+            }
+          },
+          "defaultConfiguration": "development",
+          "options": {
+            "port": 4202,
+            "host": "127.0.0.1",
+            "headers": {
+              "Access-Control-Allow-Origin": "*"
+            }
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": ["mfe-inventory/src/**/*.ts", "mfe-inventory/src/**/*.html"],
+            "maxWarnings": 0
+          }
+        }
+      }
+    }
+  }
+}

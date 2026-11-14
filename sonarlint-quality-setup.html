@@ -1,0 +1,2690 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="PulseOps-specific setup and activation steps for ESLint, Node/c8 coverage, SonarQube Cloud, GitHub Actions, and AWS S3/CloudFront deployment, with optional new-project reference material."
+    />
+    <title>PulseOps · SonarLint, ESLint, GitHub CI &amp; AWS Setup</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #172e36;
+        --muted: #4b626b;
+        --paper: #f3f6f4;
+        --card: #fff;
+        --line: #d7e2dc;
+        --accent: #12604f;
+        --code: #102830;
+        --gold: #f1c574;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+        scroll-padding-top: 24px;
+      }
+      body {
+        margin: 0;
+        font:
+          16px/1.7 system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          sans-serif;
+        color: var(--ink);
+        background: var(--paper);
+      }
+      a {
+        color: var(--accent);
+        text-underline-offset: 3px;
+      }
+      a:focus-visible,
+      button:focus-visible,
+      input:focus-visible,
+      pre:focus-visible {
+        outline: 3px solid #ce8b1c;
+        outline-offset: 4px;
+      }
+      p {
+        margin: 1em 0;
+      }
+      h1,
+      h2,
+      h3 {
+        line-height: 1.25;
+        letter-spacing: -0.025em;
+      }
+      h1 {
+        font-size: clamp(2rem, 4vw, 3.6rem);
+        max-width: 920px;
+        margin: 0.5em 0;
+      }
+      h2 {
+        font-size: 1.7rem;
+        margin: 0 0 24px;
+      }
+      h3 {
+        font-size: 1.1rem;
+      }
+      header {
+        padding: 64px max(24px, calc((100vw - 1380px) / 2));
+        background: var(--code);
+        color: #fff;
+        border-bottom: 6px solid var(--gold);
+      }
+      header p {
+        color: #d8e8e4;
+        max-width: 800px;
+      }
+      .eyebrow {
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        font-size: 0.75rem;
+        font-weight: 750;
+        color: var(--gold);
+      }
+      .badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .badges span {
+        border: 1px solid #48656b;
+        padding: 3px 12px;
+        border-radius: 30px;
+        font-size: 0.8rem;
+      }
+      .layout {
+        max-width: 1440px;
+        margin: auto;
+        padding: 32px 24px 80px;
+        display: grid;
+        grid-template-columns: 265px minmax(0, 1fr);
+        gap: 32px;
+      }
+      aside {
+        align-self: start;
+        position: sticky;
+        top: 24px;
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 18px;
+        max-height: calc(100vh - 48px);
+        overflow: auto;
+      }
+      aside h2 {
+        font-size: 0.85rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin: 0 0 14px;
+      }
+      nav a {
+        display: block;
+        font-size: 0.82rem;
+        line-height: 1.45;
+        padding: 8px 0;
+        text-decoration: none;
+        border-bottom: 1px solid var(--line);
+      }
+      nav a:last-child {
+        border: 0;
+      }
+      nav a:hover {
+        text-decoration: underline;
+      }
+      .tools {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 22px;
+      }
+      button {
+        font: inherit;
+        cursor: pointer;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 7px 12px;
+        background: var(--card);
+        color: var(--accent);
+        font-size: 0.85rem;
+        font-weight: 650;
+      }
+      main {
+        min-width: 0;
+      }
+      section {
+        padding: 34px;
+        margin-bottom: 26px;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: var(--card);
+        box-shadow: 0 6px 18px #142b2110;
+      }
+      section:target {
+        border-color: var(--accent);
+      }
+      code,
+      kbd {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 0.88em;
+      }
+      p code,
+      li code,
+      td code {
+        background: #eaf1ed;
+        padding: 2px 5px;
+        border-radius: 4px;
+        overflow-wrap: anywhere;
+      }
+      kbd {
+        border: 1px solid var(--line);
+        padding: 2px 5px;
+        border-radius: 4px;
+      }
+      .snippet {
+        border: 1px solid #304c55;
+        border-radius: 10px;
+        overflow: hidden;
+        margin: 22px 0;
+        background: var(--code);
+      }
+      .snippet-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 16px;
+        background: #1d3a43;
+        color: #e4eee9;
+        font-size: 0.78rem;
+      }
+      .snippet-head button {
+        flex-shrink: 0;
+        padding: 4px 10px;
+        background: #254c52;
+        color: #fff;
+        border-color: #53777d;
+        font-size: 0.75rem;
+      }
+      pre {
+        margin: 0;
+        padding: 20px;
+        overflow: auto;
+        color: #e0eee7;
+        font-size: 0.87rem;
+        line-height: 1.6;
+        tab-size: 2;
+      }
+      pre code {
+        font-size: inherit;
+      }
+      .table-wrap {
+        max-width: 100%;
+        overflow: auto;
+        margin: 24px 0;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        font-size: 0.88rem;
+      }
+      th,
+      td {
+        text-align: left;
+        vertical-align: top;
+        padding: 13px 14px;
+        border: 1px solid var(--line);
+      }
+      th {
+        background: #eaf1ed;
+        color: #254c42;
+      }
+      td:first-child {
+        font-weight: 650;
+        min-width: 155px;
+      }
+      td small {
+        display: block;
+        font-weight: 400;
+      }
+      .flow {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+        padding: 20px 0;
+      }
+      .flow span {
+        border: 1px solid #b9d5c5;
+        background: #edf7f0;
+        border-radius: 8px;
+        padding: 7px 12px;
+        font-size: 0.84rem;
+      }
+      .flow b {
+        color: var(--accent);
+      }
+      ol,
+      ul {
+        padding-left: 24px;
+      }
+      li {
+        padding: 5px 0;
+      }
+      .source {
+        font-size: 0.8rem;
+        color: var(--muted);
+      }
+      .note {
+        padding: 16px 20px;
+        border-left: 4px solid var(--accent);
+        background: #edf7f0;
+        border-radius: 0 8px 8px 0;
+      }
+      .checklist {
+        background: #f3f7f3;
+        padding: 18px 22px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        margin: 24px 0;
+      }
+      .checklist label {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+        padding: 9px 0;
+        border-bottom: 1px solid var(--line);
+        font-size: 0.9rem;
+      }
+      .checklist label:last-child {
+        border: 0;
+      }
+      .checklist input {
+        margin-top: 6px;
+        accent-color: var(--accent);
+      }
+      footer {
+        max-width: 1380px;
+        margin: 0 auto;
+        padding: 0 24px 40px;
+        color: var(--muted);
+        font-size: 0.82rem;
+      }
+      .skip {
+        position: absolute;
+        left: -9999px;
+        top: 12px;
+      }
+      .skip:focus {
+        left: 16px;
+        background: #fff;
+        color: var(--accent);
+        padding: 12px;
+        z-index: 10;
+      }
+      #copy-status {
+        min-height: 1.5em;
+        font-size: 0.8rem;
+        color: var(--muted);
+      }
+      @media (max-width: 1000px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+        aside {
+          position: static;
+          max-height: none;
+        }
+        nav {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 0 20px;
+        }
+        header {
+          padding: 36px 24px;
+        }
+        section {
+          padding: 24px;
+        }
+      }
+      @media (max-width: 600px) {
+        .layout {
+          padding: 20px 12px;
+          gap: 20px;
+        }
+        nav {
+          grid-template-columns: 1fr;
+        }
+        section {
+          padding: 20px 16px;
+        }
+        h2 {
+          font-size: 1.4rem;
+        }
+        pre {
+          padding: 14px;
+          font-size: 0.77rem;
+        }
+        .snippet-head {
+          padding: 10px;
+        }
+        .flow {
+          gap: 6px;
+        }
+      }
+      @media print {
+        html {
+          scroll-behavior: auto;
+        }
+        body {
+          background: #fff;
+          font-size: 10pt;
+        }
+        header {
+          padding: 16px 0;
+          background: #fff;
+          color: #000;
+          border-color: #333;
+        }
+        header p,
+        .eyebrow {
+          color: #333;
+        }
+        .badges,
+        aside,
+        .tools,
+        .snippet-head button,
+        .skip,
+        #copy-status {
+          display: none !important;
+        }
+        .layout {
+          display: block;
+          padding: 0;
+        }
+        section {
+          box-shadow: none;
+          border: 0;
+          border-top: 1px solid #ccc;
+          padding: 24px 0;
+          margin: 0;
+          border-radius: 0;
+        }
+        h2,
+        h3 {
+          break-after: avoid;
+        }
+        .snippet {
+          background: #fff;
+          border-color: #ccc;
+          break-inside: avoid;
+        }
+        .snippet-head {
+          background: #eee;
+          color: #000;
+        }
+        pre {
+          color: #000;
+          white-space: pre-wrap;
+          overflow-wrap: anywhere;
+          font-size: 8pt;
+        }
+        .table-wrap {
+          overflow: visible;
+        }
+        th,
+        td {
+          padding: 7px;
+        }
+        tr {
+          break-inside: avoid;
+        }
+        footer {
+          padding: 24px 0;
+        }
+        .flow span {
+          background: #fff;
+        }
+        a {
+          color: #000;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip" href="#content">Skip to setup guide</a>
+    <header>
+      <div class="eyebrow">Principal engineer’s practical runbook</div>
+      <h1>PulseOps: activate quality and delivery.</h1>
+      <p>
+        Follow the existing project’s setup in order: ESLint and editor feedback, Node/c8 coverage,
+        SonarQube Cloud, GitHub CI, and an AWS deployment plan. Learn what is configured, what you
+        activate, and why each step matters.
+      </p>
+      <div class="badges">
+        <span>sumankriti/pulseOps</span><span>SonarQube Cloud</span
+        ><span>AWS S3 + CloudFront plan</span><span>Guide-only after this update</span>
+      </div>
+    </header>
+    <div class="layout">
+      <aside aria-label="Guide navigation">
+        <h2>PulseOps setup sequence</h2>
+        <nav aria-label="PulseOps setup steps">
+          <a href="#pulseops-setup">A · Existing setup and our agreement</a
+          ><a href="#pulseops-local">B · Local editor and lint checks</a
+          ><a href="#coverage">C · PulseOps Node/c8 coverage</a
+          ><a href="#pulseops-github">D · Connect sumankriti/pulseOps</a
+          ><a href="#pulseops-sonar">E · Sonar Cloud and IDE binding</a
+          ><a href="#pulseops-ci">F · Activate GitHub CI</a
+          ><a href="#pulseops-aws">G · AWS deployment plan</a
+          ><a href="#pulseops-next">H · Guided checkpoints</a>
+        </nav>
+        <details>
+          <summary>Optional new-project reference</summary>
+          <nav aria-label="New-project reference sections">
+            <a href="#map">01 · Understand the quality layers</a
+            ><a href="#existing">02 · If you are revising the existing PulseOps project</a
+            ><a href="#create">03 · Create a new Angular CLI project</a
+            ><a href="#eslint">04 · Install ESLint and add a policy</a
+            ><a href="#format">05 · Add Prettier and editor settings</a
+            ><a href="#ide">06 · Set up SonarLint / SonarQube for IDE</a
+            ><a href="#coverage-fresh-angular"
+              >07 · Generate coverage and define repeatable commands</a
+            ><a href="#sonar">08 · Configure SonarQube Cloud or Server</a
+            ><a href="#github">09 · Create the GitHub repository and store settings</a
+            ><a href="#ci">10 · Add the GitHub Actions CI workflow</a
+            ><a href="#protect">11 · Require checks and maintain dependencies</a
+            ><a href="#deploy">12 · Optional concrete CD example: GitHub Pages</a
+            ><a href="#nx">13 · Alternative setup: Nx workspace</a
+            ><a href="#mfe">14 · Extend the pipeline for production microfrontends</a
+            ><a href="#troubleshoot">15 · Troubleshooting and command revision sheet</a>
+          </nav>
+        </details>
+        <div class="tools"><button type="button" id="print-guide">Print / save PDF</button></div>
+        <p id="copy-status" role="status" aria-live="polite"></p>
+      </aside>
+      <main id="content">
+        <section id="pulseops-setup">
+          <h2>A · PulseOps: what is already set up</h2>
+          <p>
+            This is the activation guide for
+            <a href="https://github.com/sumankriti/pulseOps"><strong>sumankriti/pulseOps</strong></a
+            >: Angular 21 shell, orders remote, inventory remote, shared contracts,
+            <strong>SonarQube Cloud</strong>, and planned
+            <strong>AWS S3 + CloudFront</strong> hosting. Follow sections A–H for this project. The
+            fresh-app, Nx, and GitHub Pages examples at the end remain optional reference material.
+          </p>
+          <div class="note">
+            <strong>Our working agreement:</strong> this update changes this HTML documentation
+            only. After this update, the assistant will explain the next step, command, reason, and
+            success criteria. You will perform the steps. No further application, configuration,
+            workflow, GitHub, Sonar, or AWS changes will be made unless you explicitly request them.
+          </div>
+          <h3>How the repository quality baseline was prepared</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Order</th>
+                  <th>Prepared files / capability</th>
+                  <th>Why it is used</th>
+                  <th>Activation still required</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>1 · Dependencies</td>
+                  <td>
+                    <code>package.json</code>, <code>package-lock.json</code>, <code>.nvmrc</code>
+                  </td>
+                  <td>
+                    Locked ESLint, Angular ESLint, typed linting, Prettier, c8, and Sonar scanner
+                    dependencies. Node requirement is <code>^24.14.0</code>.
+                  </td>
+                  <td>Use a compatible Node 24 release and run <code>npm ci</code>.</td>
+                </tr>
+                <tr>
+                  <td>2 · Lint policy</td>
+                  <td>
+                    <code>eslint.config.mjs</code>, <code>tsconfig.eslint.json</code>, three Angular
+                    lint targets
+                  </td>
+                  <td>
+                    Type-aware TypeScript rules, promise checks, Angular inline/external templates,
+                    and accessibility checks.
+                  </td>
+                  <td>Install the editor extension and execute the lint commands.</td>
+                </tr>
+                <tr>
+                  <td>3 · Formatting</td>
+                  <td>
+                    <code>.prettierrc.json</code>, <code>.prettierignore</code>,
+                    <code>.editorconfig</code>
+                  </td>
+                  <td>Keep code layout consistent without competing ESLint formatting rules.</td>
+                  <td>Use the existing formatter. Review any formatting changes yourself.</td>
+                </tr>
+                <tr>
+                  <td>4 · Editor feedback</td>
+                  <td><code>.vscode/extensions.json</code>, <code>.vscode/settings.json</code></td>
+                  <td>Recommend Angular, ESLint, Prettier, and SonarQube extensions.</td>
+                  <td>Recommendations do not install extensions or connect your Sonar account.</td>
+                </tr>
+                <tr>
+                  <td>5 · Boundaries</td>
+                  <td><code>scripts/check-boundaries.mjs</code></td>
+                  <td>
+                    Prevent domain implementation imports across applications and dependencies from
+                    shared modules back into apps.
+                  </td>
+                  <td>Review failures through <code>npm run check:boundaries</code>.</td>
+                </tr>
+                <tr>
+                  <td>6 · Coverage</td>
+                  <td>
+                    <code>.c8rc.json</code>, <code>scripts/stores.test.mjs</code>,
+                    <code>scripts/coverage-check.mjs</code>
+                  </td>
+                  <td>
+                    Run Node tests, remap coverage to original TypeScript, and enforce coverage for
+                    seven core files.
+                  </td>
+                  <td>Generate fresh reports and address failing tests or thresholds.</td>
+                </tr>
+                <tr>
+                  <td>7 · Sonar analysis</td>
+                  <td>
+                    <code>sonar-project.properties</code>, <code>scripts/sonar-scan.mjs</code>
+                  </td>
+                  <td>
+                    Analyze apps/shared/tooling, import LCOV, and wait for the server quality gate.
+                  </td>
+                  <td>
+                    Create/import the Cloud project, bind the IDE, and supply connection settings.
+                  </td>
+                </tr>
+                <tr>
+                  <td>8 · Continuous integration</td>
+                  <td>
+                    <code>.github/workflows/quality.yml</code>, <code>.github/dependabot.yml</code>
+                  </td>
+                  <td>
+                    Repeat quality/build/browser checks in GitHub and propose dependency updates.
+                  </td>
+                  <td>
+                    Publish the intended files, run Actions, configure variables/secrets, and
+                    require checks.
+                  </td>
+                </tr>
+                <tr>
+                  <td>9 · Continuous deployment</td>
+                  <td>AWS deployment plan only</td>
+                  <td>Host complete shell/remote artifacts and promote compatible releases.</td>
+                  <td>
+                    No deployment job exists in the current workflow. AWS resources, OIDC role,
+                    production manifest, and deployment workflow still need user setup.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p>
+            <strong>What the evidence means:</strong> the earlier local baseline recorded 14
+            unit/store tests, 17 browser tests, and all three production builds passing. Those are
+            historical local results, not a claim that GitHub Actions, your Cloud project, or AWS
+            has been activated. This documentation edit does not re-run those suites.
+          </p>
+          <div class="flow" aria-label="PulseOps activation sequence">
+            <span>Local checks</span><b>→</b><span>GitHub checkout</span><b>→</b
+            ><span>Sonar Cloud + IDE</span><b>→</b><span>CI gate</span><b>→</b
+            ><span>AWS preparation</span><b>→</b><span>Controlled deployment</span>
+          </div>
+          <p>
+            <a href="docs/production-readiness.md">Detailed production-readiness plan</a> ·
+            <a href="pulseops-teaching.html#production-quality">Teaching chapter 25</a>
+          </p>
+        </section>
+        <section id="pulseops-local">
+          <h2>B · Prepare the local workspace and editor</h2>
+          <p>
+            <strong>Decision:</strong> use the existing dependency lockfile and lint configuration.
+            Re-running a new-project generator would change this established workspace.
+          </p>
+          <div class="snippet">
+            <div class="snippet-head">
+              <span>PulseOps · user runs these terminal commands</span>
+            </div>
+            <pre tabindex="0"><code>cd /Users/kritisuman/Documents/learning/microfrontend
+nvm use
+node --version
+npm --version
+npm ci
+npm run lint
+npm run typecheck
+npm run format:check
+npm run check:boundaries</code></pre>
+          </div>
+          <p>
+            Node must satisfy <code>^24.14.0</code>. If nvm has no compatible installed version, use
+            <code>nvm install 24</code> and then repeat the version check. The commands check the
+            working tree; none requests an automatic source-code fix. Existing editor settings do
+            enable ESLint fixes when you explicitly save a file.
+          </p>
+          <div class="snippet">
+            <div class="snippet-head"><span>VS Code extensions · user installs once</span></div>
+            <pre tabindex="0"><code>code --install-extension dbaeumer.vscode-eslint
+code --install-extension SonarSource.sonarlint-vscode
+code --install-extension esbenp.prettier-vscode
+code --install-extension angular.ng-template</code></pre>
+          </div>
+          <p>
+            If <code>code</code> is unavailable, use the VS Code Extensions panel. Open the
+            <strong>workspace folder</strong>, then inspect Problems and the ESLint output channel.
+            The Sonar extension is now named <strong>SonarQube for IDE</strong>; its extension ID
+            still contains <code>sonarlint</code>.
+          </p>
+          <h3>How ESLint works here</h3>
+          <p>
+            The flat config combines ESLint recommended rules,
+            <code>typescript-eslint</code> type-aware rules, and Angular rules.
+            <code>tsconfig.eslint.json</code> supplies project types;
+            <code>angular.processInlineTemplates</code> handles templates written inside TypeScript.
+            Separate HTML rules check external templates. Prettier handles presentation. The custom
+            boundary script checks architectural dependency directions.
+          </p>
+          <div class="snippet">
+            <div class="snippet-head">
+              <span>Existing npm entry points · explanatory excerpt from package.json</span>
+            </div>
+            <pre tabindex="0"><code>&quot;lint&quot;: &quot;eslint . --max-warnings=0&quot;,
+&quot;typecheck&quot;: &quot;tsc --project tsconfig.eslint.json --noEmit&quot;,
+&quot;quality&quot;: &quot;npm run lint &amp;&amp; npm run typecheck &amp;&amp; npm run format:check &amp;&amp; npm run check:boundaries &amp;&amp; npm run test:coverage&quot;,
+&quot;verify&quot;: &quot;npm run quality &amp;&amp; npm run build &amp;&amp; npm run test:e2e&quot;</code></pre>
+          </div>
+          <p>
+            <strong>Success criteria:</strong> checks return exit code 0. Investigate each finding
+            before choosing a fix. To inspect one Angular application independently, use the
+            corresponding existing lint target:
+          </p>
+          <div class="snippet">
+            <div class="snippet-head"><span>Existing per-application lint targets</span></div>
+            <pre tabindex="0"><code>npx ng lint mfe-shell
+npx ng lint mfe-orders
+npx ng lint mfe-inventory</code></pre>
+          </div>
+          <p>
+            <strong>Documentation filename checkpoint:</strong> the standalone guide is now named
+            <code>sonarlint-quality-setup.html</code>, while the root ESLint ignore list still names
+            <code>new-project-quality-setup.html</code>. If root lint reports an Angular parser
+            error inside this static guide, the documentation scope must be reviewed. This HTML-only
+            update does not change <code>eslint.config.mjs</code>. The principal-engineer fix is to
+            exclude the intended static documentation file explicitly, preserving lint rules for
+            real Angular templates; you would make that reviewed configuration change yourself.
+          </p>
+        </section>
+        <section id="coverage">
+          <h2>C · PulseOps coverage: Node + c8, not the fresh-app runner</h2>
+          <p>
+            This is the correct coverage section for the linked <code>#coverage</code> anchor.
+            PulseOps uses <strong>Node’s test runner plus c8</strong>. Use the installed tools and
+            existing scripts below. The optional fresh-Angular Vitest recipe is at
+            <a href="#coverage-fresh-angular">reference 07</a>.
+          </p>
+          <div class="snippet">
+            <div class="snippet-head"><span>PulseOps · generate current coverage</span></div>
+            <pre tabindex="0"><code>cd /Users/kritisuman/Documents/learning/microfrontend
+npm run test:coverage
+node -e &quot;const fs=require(&#x27;node:fs&#x27;); const p=&#x27;coverage/lcov.info&#x27;; if(!fs.readFileSync(p,&#x27;utf8&#x27;).includes(&#x27;SF:&#x27;)) process.exit(1); console.log(&#x27;Valid LCOV:&#x27;,p)&quot;</code></pre>
+          </div>
+          <p>
+            If you have moved to the separate GitHub checkout in section D, run these commands from
+            that checkout instead of the original path.
+          </p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Stage</th>
+                  <th>Existing setup</th>
+                  <th>Why it matters</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Test execution</td>
+                  <td><code>c8 npm test</code></td>
+                  <td>
+                    Runs the project’s TypeScript rule tests and transpiled Angular store tests.
+                  </td>
+                </tr>
+                <tr>
+                  <td>Source mapping</td>
+                  <td>
+                    Store-test transpilation retains source maps; c8 remaps generated JavaScript.
+                  </td>
+                  <td>
+                    Coverage records refer to original TypeScript, not scratch
+                    <code>.angular</code> files.
+                  </td>
+                </tr>
+                <tr>
+                  <td>Coverage scope</td>
+                  <td><code>.c8rc.json</code> includes application/shared runtime TypeScript.</td>
+                  <td>Untested application code remains visible in the full report.</td>
+                </tr>
+                <tr>
+                  <td>Local threshold</td>
+                  <td><code>scripts/coverage-check.mjs</code></td>
+                  <td>
+                    Each of seven listed core files must reach at least 80% executable line
+                    coverage.
+                  </td>
+                </tr>
+                <tr>
+                  <td>Sonar import</td>
+                  <td><code>coverage/lcov.info</code></td>
+                  <td>
+                    The scanner imports this report; Sonar does not generate it or execute tests.
+                  </td>
+                </tr>
+                <tr>
+                  <td>Human review</td>
+                  <td><code>coverage/lcov-report/index.html</code></td>
+                  <td>Inspect uncovered statements and branches to plan meaningful tests.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="snippet">
+            <div class="snippet-head">
+              <span>Core files covered by the current per-file gate</span>
+            </div>
+            <pre tabindex="0"><code>mfe-orders/src/app/order-rules.ts
+mfe-orders/src/app/orders-api.ts
+mfe-orders/src/app/orders-store.ts
+mfe-inventory/src/app/stock-rules.ts
+mfe-inventory/src/app/inventory-store.ts
+mfe-shell/src/app/auth/return-url.ts
+shared/notifications/index.ts</code></pre>
+          </div>
+          <p>
+            <strong>Interpret the report correctly:</strong> the earlier verified baseline had
+            <strong>22.96% full-app unit line coverage</strong>, while all seven core files passed
+            their 80% per-file gate. That is not 80% application coverage. The 17 browser tests
+            verify separate runtime journeys and do not add coverage to this unit LCOV. Generate a
+            new report before judging today’s result.
+          </p>
+          <div class="snippet">
+            <div class="snippet-head">
+              <span>Build all three applications before browser verification</span>
+            </div>
+            <pre tabindex="0"><code>npm run quality
+npm run build
+npx playwright install chromium
+
+PLAYWRIGHT_CHANNEL=chromium \
+PULSEOPS_E2E_ORDERS_ORIGIN=http://127.0.0.1:4401 \
+PULSEOPS_E2E_INVENTORY_ORIGIN=http://127.0.0.1:4402 \
+npm run test:e2e</code></pre>
+          </div>
+          <p>
+            The browser suite starts the host on port 4300 by default. The remote overrides above
+            use 4401/4402 to avoid development servers on 4201/4202. If 4300 is occupied, also
+            supply a free <code>PULSEOPS_E2E_BASE_URL</code>. These local servers verify built
+            artifacts; they are not production hosting.
+          </p>
+          <p>
+            <strong>Success criteria:</strong> tests pass, all seven coverage thresholds pass, LCOV
+            contains original source-file paths, all builds succeed, and composed browser journeys
+            pass. A future Sonar gate may still fail if its application/new-code coverage policy is
+            stricter; inspect the finding rather than hiding source files.
+          </p>
+        </section>
+        <section id="pulseops-github">
+          <h2>D · Connect sumankriti/pulseOps safely</h2>
+          <p>
+            Your chosen repository is
+            <a href="https://github.com/sumankriti/pulseOps"
+              >https://github.com/sumankriti/pulseOps</a
+            >. An earlier read-only remote check confirmed commits on <code>main</code>. The
+            original local workspace still has no Git history. Preserve the remote’s history by
+            using a separate clone.
+          </p>
+          <div class="snippet">
+            <div class="snippet-head"><span>User commands · clone into a new directory</span></div>
+            <pre tabindex="0"><code>cd /Users/kritisuman/Documents/learning
+git clone https://github.com/sumankriti/pulseOps.git pulseOps-github
+cd pulseOps-github
+git switch -c chore/activate-quality-gates
+git status</code></pre>
+          </div>
+          <p>
+            If that clone directory already exists, inspect and use it rather than cloning over it.
+            Compare its contents with the original workspace. Bring across missing intended
+            source/configuration files through a reviewed change, preserving the clone’s
+            <code>.git</code>. Leave generated directories and local secrets out of the copy. Do not
+            force-push an unrelated local history.
+          </p>
+          <div class="snippet">
+            <div class="snippet-head">
+              <span>Inspect the required configuration files in the chosen checkout</span>
+            </div>
+            <pre tabindex="0"><code>ls -a
+ls .github/workflows/quality.yml
+ls eslint.config.mjs tsconfig.eslint.json sonar-project.properties
+ls scripts/sonar-scan.mjs .vscode/extensions.json
+nvm use
+npm ci
+npm run quality
+npm run build</code></pre>
+          </div>
+          <p>
+            Before publishing, resolve any differences and the static-document lint scope described
+            in section B yourself. Then review exactly what will be committed:
+          </p>
+          <div class="snippet">
+            <div class="snippet-head"><span>User commands · publish the reviewed branch</span></div>
+            <pre tabindex="0"><code>git status
+git add .
+git diff --cached --stat
+git diff --cached
+git commit -m &quot;Configure PulseOps quality gates&quot;
+git push -u origin chore/activate-quality-gates</code></pre>
+          </div>
+          <p>
+            Open a PR to <code>main</code>. If there are no file differences, no new commit is
+            required; inspect the existing workflow on GitHub instead. GitHub CLI is optional and
+            was not installed in the original workspace, so the account activation steps below use
+            the browser UI.
+          </p>
+          <p>
+            <strong>Success criteria:</strong> the repository contains the intended application,
+            lockfile, hidden configuration folders, and quality workflow with the existing remote
+            history preserved.
+          </p>
+        </section>
+        <section id="pulseops-sonar">
+          <h2>E · Import SonarQube Cloud and connect the IDE</h2>
+          <ol>
+            <li>
+              Sign in to SonarQube Cloud with GitHub and connect/import the account or organization
+              that owns <code>sumankriti/pulseOps</code>.
+            </li>
+            <li>
+              Grant the Sonar GitHub integration access to this repository and import it as one
+              <strong>PulseOps</strong> project. One initial analysis scope can cover shell, both
+              remotes, and shared code together.
+            </li>
+            <li>
+              Select <strong>GitHub Actions / CI-based analysis</strong>. Disable automatic analysis
+              for this project before running the existing scanner.
+            </li>
+            <li>
+              Record the actual organization key, project key, and regional onboarding values.
+              Project keys are not inferred here from the repository spelling.
+            </li>
+            <li>
+              Create an analysis token with the necessary project access and a managed expiry. Keep
+              the value in secure credential storage or GitHub Secrets.
+            </li>
+            <li>
+              Open the SonarQube extension in VS Code, add a Cloud connection through its wizard,
+              authenticate, and bind this workspace to that project.
+            </li>
+          </ol>
+          <p>
+            <strong>How analysis was prepared:</strong> <code>sonar-project.properties</code> covers
+            <code>mfe-shell</code>, <code>mfe-orders</code>, <code>mfe-inventory</code>,
+            <code>shared</code>, and <code>scripts</code>, classifies tests, and imports
+            <code>coverage/lcov.info</code>. <code>scripts/sonar-scan.mjs</code> validates required
+            settings and coverage, calls the installed scanner API, and returns a failing exit code
+            when scanning or the configured server gate fails.
+          </p>
+          <div class="note">
+            <strong>Region checkpoint:</strong> the EU host example is
+            <code>https://sonarcloud.io</code>. The current wrapper requires
+            <code>SONAR_HOST_URL</code>. A US project also needs <code>sonar.region=us</code> /
+            <code>SONAR_REGION</code>; the existing CI workflow does not explicitly pass that
+            setting. Review that configuration yourself before enabling a US-region scan.
+          </div>
+          <div class="snippet">
+            <div class="snippet-head">
+              <span>Optional local scan · EU example, replace the two real project keys</span>
+            </div>
+            <pre tabindex="0"><code># Run from the chosen PulseOps checkout.
+export SONAR_HOST_URL=&#x27;https://sonarcloud.io&#x27;
+export SONAR_PROJECT_KEY=&#x27;COPY_YOUR_ACTUAL_PROJECT_KEY&#x27;
+export SONAR_ORGANIZATION=&#x27;COPY_YOUR_ACTUAL_ORGANIZATION_KEY&#x27;
+
+printf &#x27;Sonar analysis token: &#x27;
+read -r -s SONAR_TOKEN
+printf &#x27;\n&#x27;
+export SONAR_TOKEN
+
+npm run test:coverage
+npm run sonar:scan
+unset SONAR_TOKEN</code></pre>
+          </div>
+          <p>
+            This prompt keeps the token out of command arguments and shell history. Do not paste
+            tokens into this guide, chat, tracked settings, or the properties file. IDE connected
+            mode synchronizes rules and settings; it does not upload the CI analysis.
+          </p>
+          <p>
+            <strong>Success criteria:</strong> VS Code reports the correct project binding, and an
+            explicitly run scanner produces a server analysis for the intended project/commit with
+            imported coverage and a real quality-gate result.
+          </p>
+          <p class="source">
+            Reference:
+            <a
+              href="https://docs.sonarsource.com/sonarqube-cloud/analyzing-source-code/ci-based-analysis/github-actions-for-sonarcloud"
+              >Sonar Cloud GitHub Actions onboarding</a
+            >.
+          </p>
+          <p class="source">
+            Reference:
+            <a
+              href="https://docs.sonarsource.com/sonarqube-cloud/analyzing-source-code/analysis-parameters/parameters-not-settable-in-ui"
+              >Cloud regional scanner parameters</a
+            >.
+          </p>
+          <p class="source">
+            Reference:
+            <a
+              href="https://docs.sonarsource.com/sonarqube-for-vs-code/connect-your-ide/connected-mode"
+              >SonarQube for IDE connected mode</a
+            >.
+          </p>
+        </section>
+        <section id="pulseops-ci">
+          <h2>F · Activate the existing GitHub CI and Sonar gate</h2>
+          <p>
+            Open
+            <a href="https://github.com/sumankriti/pulseOps/settings"
+              >pulseOps repository Settings</a
+            >
+            → <strong>Secrets and variables → Actions</strong>. Create the connection values first,
+            then enable the optional Sonar job.
+          </p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>GitHub storage</th>
+                  <th>Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>SONAR_HOST_URL</code></td>
+                  <td>Repository variable</td>
+                  <td>Actual regional host; EU example <code>https://sonarcloud.io</code>.</td>
+                </tr>
+                <tr>
+                  <td><code>SONAR_PROJECT_KEY</code></td>
+                  <td>Repository variable</td>
+                  <td>Exact project key shown by Sonar Cloud.</td>
+                </tr>
+                <tr>
+                  <td><code>SONAR_ORGANIZATION</code></td>
+                  <td>Repository variable</td>
+                  <td>Exact Cloud organization key.</td>
+                </tr>
+                <tr>
+                  <td><code>SONAR_TOKEN</code></td>
+                  <td>Repository secret</td>
+                  <td>Private analysis token; not a repository variable.</td>
+                </tr>
+                <tr>
+                  <td><code>SONAR_ENABLED</code></td>
+                  <td>Repository variable</td>
+                  <td>
+                    <code>true</code>, after service, region, plan, and credentials are ready.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <h3>What the checked-in workflow actually does</h3>
+          <p>
+            <code>.github/workflows/quality.yml</code> is named <strong>Quality gates</strong>. It
+            triggers on pushes, pull requests, and manual dispatch. Its <code>checks</code> job
+            installs locked dependencies, runs <code>npm run quality</code>, builds all three
+            applications, installs Chromium, and runs browser contract tests.
+          </p>
+          <p>
+            It saves <code>coverage</code>, <code>browser-diagnostics</code>, and the complete
+            <code>pulseops-browser-artifacts</code> outputs. The separate <code>sonar</code> job
+            needs successful checks, downloads the same run’s coverage, checks out full history, and
+            executes <code>npm run sonar:scan</code> with the variables and secret above.
+          </p>
+          <div class="snippet">
+            <div class="snippet-head">
+              <span>Existing Sonar gate behavior · explanation, not new YAML to paste</span>
+            </div>
+            <pre tabindex="0"><code>SONAR_ENABLED absent or not true -&gt; Sonar job skipped
+Checks fail                      -&gt; Sonar job not reached
+Push / same-repository PR        -&gt; Sonar job runs when enabled
+Fork PR                          -&gt; Sonar job skipped
+Scanner or server gate fails     -&gt; Sonar job fails
+No deployment job                -&gt; Nothing is published to AWS</code></pre>
+          </div>
+          <p>
+            <strong>Plan checkpoint:</strong> the current workflow scans all pushes and eligible
+            same-repository PRs. Sonar Cloud Free currently limits branch analysis to main and PR
+            analysis to PRs targeting main. A feature-branch push can therefore require a later
+            workflow-policy change. Confirm the selected plan and intended branch policy before
+            enabling scans; no such change is made by this HTML update.
+          </p>
+          <ol>
+            <li>
+              Ensure the intended <code>quality.yml</code> is published to the default branch
+              through a reviewed PR.
+            </li>
+            <li>
+              Open <a href="https://github.com/sumankriti/pulseOps/actions">Actions</a> →
+              <strong>Quality gates</strong> → <strong>Run workflow</strong>, selecting
+              <code>main</code> for the first full scan.
+            </li>
+            <li>
+              Inspect the checks log, the Sonar job, retained coverage, browser diagnostics, and the
+              server analysis. Verify the job ran; a skip does not establish a pass.
+            </li>
+            <li>
+              After actual runs exist, configure a ruleset/branch protection for
+              <code>main</code> and require
+              <strong>Lint, coverage, build, and browser contracts</strong>.
+            </li>
+            <li>
+              Require the real Sonar gate once its supported PR/branch analysis policy is in place.
+              Establish how fork contributions are reviewed without distributing scan tokens to
+              untrusted code.
+            </li>
+            <li>
+              Review Dependabot PRs under the same checks. A proposed coverage/new-code policy must
+              be configured in Sonar itself.
+            </li>
+          </ol>
+          <p>
+            <strong>Success criteria:</strong> the configured checks actually run on the intended
+            branch/PR, a bad change is blocked by the expected gate, and the successful artifact
+            belongs to the reviewed commit. A GitHub skipped job may still report success, so merely
+            marking an optional job required is not sufficient enforcement.
+          </p>
+          <p class="source">
+            Reference:
+            <a
+              href="https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-secrets"
+              >GitHub repository secrets</a
+            >.
+          </p>
+          <p class="source">
+            Reference:
+            <a
+              href="https://docs.sonarsource.com/sonarqube-cloud/administering-sonarcloud/managing-subscription/subscription-plans"
+              >Sonar Cloud plan capabilities</a
+            >.
+          </p>
+          <p class="source">
+            Reference:
+            <a
+              href="https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/control-jobs-with-conditions"
+              >GitHub skipped-job behavior</a
+            >.
+          </p>
+        </section>
+        <section id="pulseops-aws">
+          <h2>G · AWS CD plan: S3, CloudFront, and GitHub OIDC</h2>
+          <p>
+            <strong>Current state:</strong> CI exists; CD is still a plan. The current workflow
+            saves browser artifacts and has no AWS deployment job. The source shell manifest still
+            contains localhost URLs. The steps below explain the user changes needed before a public
+            deployment; they do not create resources or modify this project.
+          </p>
+          <h3>1. Choose the hosting resources</h3>
+          <p>
+            Select the AWS account and S3 region, then create three globally unique bucket names and
+            one CloudFront distribution per application. Record bucket names, distribution IDs, and
+            HTTPS domains.
+          </p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Application</th>
+                  <th>Complete output to publish</th>
+                  <th>Suggested topology</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Shell</td>
+                  <td><code>dist/mfe-shell/browser/</code></td>
+                  <td>Private S3 bucket and shell CloudFront distribution.</td>
+                </tr>
+                <tr>
+                  <td>Orders remote</td>
+                  <td><code>dist/mfe-orders/browser/</code></td>
+                  <td>
+                    Private S3 bucket and orders CloudFront distribution; immutable release
+                    prefixes.
+                  </td>
+                </tr>
+                <tr>
+                  <td>Inventory remote</td>
+                  <td><code>dist/mfe-inventory/browser/</code></td>
+                  <td>
+                    Private S3 bucket and inventory CloudFront distribution; immutable release
+                    prefixes.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <ol>
+            <li>
+              Keep S3 Block Public Access enabled. Use normal S3 REST origins with CloudFront
+              <strong>Origin Access Control</strong> and bucket policies restricted to each
+              distribution.
+            </li>
+            <li>
+              Enable HTTPS/HTTP-to-HTTPS redirects. S3 website endpoints do not support this OAC
+              setup.
+            </li>
+            <li>
+              Configure CORS on remote responses for the shell origin, including JavaScript/shared
+              chunks and metadata JSON.
+            </li>
+            <li>
+              Configure shell SPA navigation such as <code>/orders</code> to serve root
+              <code>/index.html</code>. Preserve missing-asset errors for <code>.js</code>,
+              <code>.json</code>, and other resources.
+            </li>
+            <li>
+              Cache immutable release assets long-term; revalidate mutable shell/index/manifest
+              pointers. Retain older assets for open tabs and rollback.
+            </li>
+          </ol>
+          <h3>2. Prepare GitHub-to-AWS authentication</h3>
+          <p>
+            Create a protected GitHub environment called <code>production</code> and restrict it to
+            the deployment branch. Configure AWS IAM trust for GitHub OIDC, audience
+            <code>sts.amazonaws.com</code>, and the exact subject used by this repository’s
+            production environment. Grant the deployment role only the required S3 publication and
+            CloudFront invalidation access.
+          </p>
+          <p>
+            <strong>OIDC subject checkpoint:</strong> GitHub’s current subject format may include
+            immutable owner/repository IDs for newer or opted-in repositories. Match the actual
+            emitted subject; do not blindly copy a generic
+            <code>repo:owner/repository:environment:production</code> value. A deployment job also
+            needs <code>id-token: write</code> to obtain the short-lived identity.
+          </p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Proposed deployment values</th>
+                  <th>Purpose</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>AWS_REGION</code>, <code>AWS_ROLE_ARN</code></td>
+                  <td>Region and OIDC deployment role.</td>
+                  <td>Not consumed by the current workflow; needed by a future deployment job.</td>
+                </tr>
+                <tr>
+                  <td>Three bucket names</td>
+                  <td>Where each complete app release is published.</td>
+                  <td>
+                    Choose/create in your account; do not assume suggested names are available.
+                  </td>
+                </tr>
+                <tr>
+                  <td>Three distribution IDs / domains</td>
+                  <td>HTTPS delivery, manifest URLs, and any targeted invalidation.</td>
+                  <td>Record from actual CloudFront resources.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <h3>3. Promote releases in the correct order</h3>
+          <div class="flow" aria-label="Proposed AWS promotion sequence">
+            <span>CI + actual Sonar pass</span><b>→</b><span>Download checked artifact</span><b>→</b
+            ><span>Publish remote releases</span><b>→</b><span>Verify chunks</span><b>→</b
+            ><span>Promote shell + manifest</span><b>→</b><span>Smoke test</span>
+          </div>
+          <p>
+            Publish the complete remote browser directories to immutable release paths first.
+            Validate <code>remoteEntry.json</code> and its referenced assets. Then supply the
+            shell’s deployment-artifact manifest with the real remote release URLs. The following
+            shows the intended shape, not values already configured:
+          </p>
+          <div class="snippet">
+            <div class="snippet-head">
+              <span
+                >Proposed production federation.manifest.json · replace with actual release URLs
+                later</span
+              >
+            </div>
+            <pre tabindex="0"><code>{
+  &quot;mfe-orders&quot;: &quot;https://YOUR_ORDERS_DISTRIBUTION.cloudfront.net/releases/RELEASE_ID/remoteEntry.json&quot;,
+  &quot;mfe-inventory&quot;: &quot;https://YOUR_INVENTORY_DISTRIBUTION.cloudfront.net/releases/RELEASE_ID/remoteEntry.json&quot;
+}</code></pre>
+          </div>
+          <p>
+            Keep the shell’s complete output at its expected root, including its own federation
+            metadata. Uploading only a remote entry or a source <code>shared/</code> directory is
+            insufficient; the browser needs every referenced chunk. Deployment should promote the
+            checked build, not silently rebuild application code.
+          </p>
+          <h3>4. Define deployment acceptance and rollback</h3>
+          <p>
+            Smoke-test login, orders, inventory, shared-session behavior, deep-link refresh, remote
+            outage/retry, and logout on the actual HTTPS URLs. Record the shell/remote release set.
+            Rollback should restore a tested shell/manifest pointer while retained remote assets
+            remain reachable. Review existing demo authentication separately before handling real
+            users.
+          </p>
+          <p>
+            <strong>Success criteria:</strong> a failed CI/Sonar gate prevents publication, the
+            deployed manifest references only verified assets, the browser completes the required
+            journeys, and rollback is demonstrated. Exact AWS CLI/workflow instructions come after
+            your account region, resource names, role, and domains are known; the assistant will
+            guide rather than apply them.
+          </p>
+          <p class="source">
+            Reference:
+            <a
+              href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/private-content-restricting-access-to-s3.html"
+              >AWS CloudFront OAC with private S3 origins</a
+            >.
+          </p>
+          <p class="source">
+            Reference:
+            <a
+              href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/understanding-response-headers-policies.html"
+              >CloudFront response-header policies</a
+            >.
+          </p>
+          <p class="source">
+            Reference:
+            <a
+              href="https://docs.github.com/en/actions/how-tos/secure-your-work/security-harden-deployments/oidc-in-aws"
+              >GitHub OIDC in AWS</a
+            >.
+          </p>
+        </section>
+        <section id="pulseops-next">
+          <h2>H · Follow the next checkpoint with principal-engineer reasoning</h2>
+          <p>
+            For each checkpoint, the assistant will explain
+            <strong
+              >what to do, why it matters, the command/UI action, the expected result, and what a
+              failure means</strong
+            >. You execute the action and share the relevant non-secret result. We then choose the
+            next step from evidence.
+          </p>
+          <div class="checklist">
+            <h3>Your PulseOps activation checkpoints</h3>
+            <label
+              ><input type="checkbox" /> Chosen checkout preserves the existing GitHub history and
+              contains the intended quality files.</label
+            >
+            <label
+              ><input type="checkbox" /> Local lint, types, formatting, boundaries, coverage,
+              builds, and browser checks pass.</label
+            >
+            <label
+              ><input type="checkbox" /> Sonar Cloud imports sumankriti/pulseOps; region and actual
+              organization/project keys are recorded.</label
+            >
+            <label><input type="checkbox" /> VS Code is bound to the correct Sonar project.</label>
+            <label
+              ><input type="checkbox" /> GitHub variables/secrets are configured; a real Sonar scan
+              and quality gate complete.</label
+            >
+            <label
+              ><input type="checkbox" /> Required PR checks match the supported branch/PR
+              policy.</label
+            >
+            <label><input type="checkbox" /> AWS resources and exact OIDC trust are ready.</label>
+            <label
+              ><input type="checkbox" /> A reviewed deployment workflow and production manifest are
+              prepared by the user.</label
+            >
+            <label><input type="checkbox" /> Deployed journeys and rollback are verified.</label>
+          </div>
+          <p>
+            <strong>Next information to share:</strong> after importing the repository into Sonar
+            Cloud, share the organization key, project key, and region. Later, record the AWS region
+            and resource identifiers for deployment guidance. Never share analysis tokens, AWS
+            credentials, or session secrets.
+          </p>
+          <p>
+            This checklist is a revision aid, not automatic verification. No checkbox implies an
+            account action occurred. After this documentation update, further work remains
+            guidance-only unless you explicitly authorize an implementation change.
+          </p>
+        </section>
+        <section id="new-project-reference">
+          <h2>Optional reference · starting a different project</h2>
+          <p>
+            The original sections 01–15 below are retained for revision. They create
+            <strong>quality-lab</strong> or a separate Nx workspace and include a GitHub Pages
+            exercise. For existing PulseOps, follow <a href="#pulseops-setup">A–H above</a>; use
+            <a href="#coverage">Node/c8 coverage</a>, <code>.github/workflows/quality.yml</code>,
+            and the AWS plan. Do not replace PulseOps configuration with these fresh-app examples.
+          </p>
+        </section>
+        <section id="map">
+          <h2>01 · Understand the quality layers</h2>
+          <p>
+            Use this guide when creating a new Angular product. The main recipe creates
+            <strong>quality-lab</strong>, a single Angular 21 application. The Nx and microfrontend
+            sections show what changes when the workspace grows. Run commands from the project root
+            unless a step says otherwise. Commands target macOS/Linux shells; replace example names
+            before running them.
+          </p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Tool / layer</th>
+                  <th>What it does</th>
+                  <th>Where it runs</th>
+                  <th>What you commit</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>ESLint + angular-eslint</td>
+                  <td>Finds unsafe TypeScript patterns and Angular template problems.</td>
+                  <td>Editor, terminal, CI</td>
+                  <td>Flat config, dependencies, lockfile</td>
+                </tr>
+                <tr>
+                  <td>Prettier</td>
+                  <td>Applies a consistent code layout.</td>
+                  <td>Editor, terminal, CI</td>
+                  <td>Formatting config and ignore file</td>
+                </tr>
+                <tr>
+                  <td>SonarQube for IDE <small>(formerly SonarLint)</small></td>
+                  <td>
+                    Shows Sonar findings while you edit. Connected mode aligns the IDE with your
+                    server project.
+                  </td>
+                  <td>VS Code</td>
+                  <td>Extension recommendations; never tokens</td>
+                </tr>
+                <tr>
+                  <td>SonarScanner + SonarQube Cloud / Server</td>
+                  <td>
+                    Uploads analysis, imports test coverage, and checks a server quality gate.
+                  </td>
+                  <td>Terminal / CI</td>
+                  <td>Scanner script and project properties</td>
+                </tr>
+                <tr>
+                  <td>Unit and browser tests</td>
+                  <td>Verify business behavior and user journeys.</td>
+                  <td>Terminal / CI</td>
+                  <td>Tests and runner configuration</td>
+                </tr>
+                <tr>
+                  <td>GitHub Actions CI</td>
+                  <td>Repeats checks on a clean machine for each change.</td>
+                  <td>GitHub runner</td>
+                  <td>Workflow YAML</td>
+                </tr>
+                <tr>
+                  <td>CD + protected environment</td>
+                  <td>Publishes a successful build to an agreed environment.</td>
+                  <td>Deployment runner</td>
+                  <td>Deployment jobs and infrastructure config</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="flow" aria-label="Delivery sequence">
+            <span>Edit</span><b>→</b><span>Local checks</span><b>→</b><span>PR checks</span><b>→</b
+            ><span>Merge</span><b>→</b><span>Sonar gate</span><b>→</b><span>Deploy artifact</span>
+          </div>
+          <p>
+            <strong>Principal engineer decision:</strong> each check must fail the command when its
+            policy fails. An installed extension or a green build alone cannot enforce a delivery
+            policy.
+          </p>
+        </section>
+        <section id="existing">
+          <h2>02 · If you are revising the existing PulseOps project</h2>
+          <p>
+            PulseOps already has the lint, scanner, coverage, and CI files. Use these commands in
+            the existing workspace; the next sections are a recipe for a
+            <strong>new</strong> project.
+          </p>
+          <div class="snippet">
+            <div class="snippet-head"><span>Existing PulseOps · terminal</span></div>
+            <pre tabindex="0"><code>npm ci
+npm run quality
+npm run build
+npm run test:e2e
+# After supplying Sonar connection settings:
+npm run sonar:scan</code></pre>
+          </div>
+          <p>
+            <code>npm run quality</code> already includes ESLint, type checking, formatting,
+            dependency boundaries, and Node/c8 coverage. PulseOps does not use the fresh-app
+            <code>ng test</code> recipe below. Browser tests need the configured host/remote ports
+            available; see its README for isolated test-port overrides.
+          </p>
+          <p>
+            Existing reference files: <code>eslint.config.mjs</code>,
+            <code>tsconfig.eslint.json</code>, <code>scripts/sonar-scan.mjs</code>,
+            <code>sonar-project.properties</code>, and <code>.github/workflows/quality.yml</code>.
+            Its Sonar job is currently optional until a repository administrator enables it. The
+            new-project workflow below instead requires Sonar to succeed before its optional
+            deployment can run.
+          </p>
+          <p>
+            <a href="docs/production-readiness.md">PulseOps production plan</a> ·
+            <a href="pulseops-teaching.html#production-quality">PulseOps teaching chapter 25</a>
+          </p>
+        </section>
+        <section id="create">
+          <h2>03 · Create a new Angular CLI project</h2>
+          <p>
+            <strong>Prerequisites:</strong> Git, npm, a supported Node.js version, VS Code, and a
+            GitHub account. The commands use nvm if you have it; otherwise install a supported Node
+            24 release through your usual toolchain. This recipe deliberately stays on Angular 21 to
+            match PulseOps. Check the compatibility table when choosing another major.
+          </p>
+          <div class="snippet">
+            <div class="snippet-head">
+              <span>Terminal · run from your learning / projects directory</span>
+            </div>
+            <pre tabindex="0"><code>nvm install 24
+nvm use 24
+node --version
+npm --version
+git --version
+
+npx @angular/cli@21 new quality-lab --standalone --routing --style=scss --package-manager=npm --ssr=false
+cd quality-lab
+node --version &gt; .nvmrc
+npx ng version
+npm start</code></pre>
+          </div>
+          <p>
+            Stop the development server with <kbd>Ctrl</kbd> + <kbd>C</kbd> before continuing.
+            Commit <code>.nvmrc</code> and <code>package-lock.json</code>: CI should use the same
+            Node release and dependency graph. A fresh Angular 21 CLI app uses Vitest for unit
+            tests.
+          </p>
+          <p class="source">
+            Reference:
+            <a href="https://angular.dev/reference/versions">Angular version compatibility</a>.
+          </p>
+        </section>
+        <section id="eslint">
+          <h2>04 · Install ESLint and add a policy</h2>
+          <p>
+            <strong>Why:</strong> Angular has TypeScript files, external templates, and inline
+            templates. Use angular-eslint so the same quality policy covers all three. Match its
+            major to the Angular CLI major.
+          </p>
+          <div class="snippet">
+            <div class="snippet-head"><span>Angular CLI workspace · terminal</span></div>
+            <pre tabindex="0"><code>npx ng add angular-eslint@21
+npx ng lint quality-lab
+npm ls eslint angular-eslint typescript-eslint
+# Install formatting tools after the lint generator finishes:
+npm install --save-dev --save-exact prettier eslint-config-prettier</code></pre>
+          </div>
+          <p>
+            The generator adds the ESLint packages, a flat config, and the project lint target. If a
+            multi-project CLI workspace is not wired automatically, add a target for each
+            application:
+          </p>
+          <div class="snippet">
+            <div class="snippet-head"><span>Only when an application has no lint target</span></div>
+            <pre tabindex="0"><code>npx ng generate angular-eslint:add-eslint-to-project mfe-shell
+npx ng generate angular-eslint:add-eslint-to-project mfe-orders
+npx ng generate angular-eslint:add-eslint-to-project mfe-inventory</code></pre>
+          </div>
+          <p>
+            For the <strong>new single-app Angular CLI recipe only</strong>, use the following as
+            <code>eslint.config.mjs</code>. If the generator produced another
+            <code>eslint.config.*</code>, consolidate into one active root config. It enables
+            type-aware checks and keeps formatting in Prettier.
+          </p>
+          <div class="snippet">
+            <div class="snippet-head"><span>eslint.config.mjs · new Angular CLI app</span></div>
+            <pre tabindex="0"><code>import eslint from &#x27;@eslint/js&#x27;;
+import tseslint from &#x27;typescript-eslint&#x27;;
+import angular from &#x27;angular-eslint&#x27;;
+import prettier from &#x27;eslint-config-prettier&#x27;;
+
+export default tseslint.config(
+  {
+    ignores: [
+      &#x27;**/node_modules/**&#x27;, &#x27;dist/**&#x27;, &#x27;.angular/**&#x27;,
+      &#x27;coverage/**&#x27;, &#x27;playwright-report/**&#x27;, &#x27;test-results/**&#x27;,
+      &#x27;.scannerwork/**&#x27;,
+    ],
+  },
+  {
+    files: [&#x27;**/*.ts&#x27;],
+    extends: [
+      eslint.configs.recommended,
+      ...tseslint.configs.recommendedTypeChecked,
+      ...angular.configs.tsRecommended,
+    ],
+    languageOptions: {
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+    processor: angular.processInlineTemplates,
+    rules: {
+      &#x27;@typescript-eslint/no-explicit-any&#x27;: &#x27;error&#x27;,
+      &#x27;@typescript-eslint/no-floating-promises&#x27;: &#x27;error&#x27;,
+      &#x27;@typescript-eslint/no-misused-promises&#x27;: &#x27;error&#x27;,
+      &#x27;@typescript-eslint/consistent-type-imports&#x27;: &#x27;error&#x27;,
+      eqeqeq: [&#x27;error&#x27;, &#x27;always&#x27;],
+    },
+  },
+  {
+    files: [&#x27;**/*.html&#x27;],
+    extends: [
+      ...angular.configs.templateRecommended,
+      ...angular.configs.templateAccessibility,
+    ],
+    rules: { &#x27;@angular-eslint/template/no-any&#x27;: &#x27;error&#x27; },
+  },
+  prettier,
+);</code></pre>
+          </div>
+          <p>
+            <code>projectService</code> reads TypeScript project information. Keep application and
+            test files included in their generated tsconfigs. If ESLint reports that a file is
+            outside the project, correct the tsconfig or scope the rule block to actual application
+            files. Add a separate Node/JavaScript ruleset if you introduce tooling scripts.
+          </p>
+          <div class="snippet">
+            <div class="snippet-head"><span>Verify the policy · terminal</span></div>
+            <pre tabindex="0"><code>npx eslint &quot;src/**/*.{ts,html}&quot; --max-warnings=0
+# Review changes after using automatic fixes:
+npx eslint &quot;src/**/*.{ts,html}&quot; --fix</code></pre>
+          </div>
+          <p>
+            <strong>Expected result:</strong> exit code 0 with no warnings. An intentional
+            <code>any</code> or an unhandled promise should make lint fail. Use
+            <code>--fix</code> locally; CI should report failures without rewriting the checked-out
+            source.
+          </p>
+          <p class="source">
+            Reference:
+            <a href="https://github.com/angular-eslint/angular-eslint"
+              >angular-eslint installation and configuration</a
+            >.
+          </p>
+        </section>
+        <section id="format">
+          <h2>05 · Add Prettier and editor settings</h2>
+          <p>
+            <strong>Why:</strong> formatting discussions should be automatic. Prettier controls
+            presentation; ESLint controls code-quality rules. Keep both available from the terminal
+            so editor choice does not decide whether checks run.
+          </p>
+          <div class="snippet">
+            <div class="snippet-head"><span>.prettierrc.json</span></div>
+            <pre tabindex="0"><code>{
+  &quot;singleQuote&quot;: true,
+  &quot;trailingComma&quot;: &quot;all&quot;,
+  &quot;printWidth&quot;: 100,
+  &quot;endOfLine&quot;: &quot;lf&quot;
+}</code></pre>
+          </div>
+          <div class="snippet">
+            <div class="snippet-head"><span>.prettierignore</span></div>
+            <pre tabindex="0"><code>node_modules/
+dist/
+.angular/
+coverage/
+.scannerwork/
+playwright-report/
+test-results/
+package-lock.json</code></pre>
+          </div>
+          <div class="snippet">
+            <div class="snippet-head"><span>Append generated artifacts to .gitignore</span></div>
+            <pre tabindex="0"><code>coverage/
+.scannerwork/
+playwright-report/
+test-results/</code></pre>
+          </div>
+          <div class="snippet">
+            <div class="snippet-head">
+              <span>VS Code terminal · requires the code command in PATH</span>
+            </div>
+            <pre tabindex="0"><code>code --install-extension angular.ng-template
+code --install-extension dbaeumer.vscode-eslint
+code --install-extension esbenp.prettier-vscode
+code --install-extension SonarSource.sonarlint-vscode</code></pre>
+          </div>
+          <p>
+            If <code>code</code> is unavailable, install the same extensions through VS Code’s
+            Extensions panel. On macOS, the command palette offers
+            <em>Shell Command: Install 'code' command in PATH</em>.
+          </p>
+          <div class="snippet">
+            <div class="snippet-head"><span>.vscode/extensions.json</span></div>
+            <pre tabindex="0"><code>{
+  &quot;recommendations&quot;: [
+    &quot;angular.ng-template&quot;,
+    &quot;dbaeumer.vscode-eslint&quot;,
+    &quot;esbenp.prettier-vscode&quot;,
+    &quot;SonarSource.sonarlint-vscode&quot;
+  ]
+}</code></pre>
+          </div>
+          <div class="snippet">
+            <div class="snippet-head">
+              <span>.vscode/settings.json · merge with any existing settings</span>
+            </div>
+            <pre tabindex="0"><code>{
+  &quot;eslint.useFlatConfig&quot;: true,
+  &quot;eslint.validate&quot;: [&quot;javascript&quot;, &quot;typescript&quot;, &quot;html&quot;],
+  &quot;editor.formatOnSave&quot;: true,
+  &quot;editor.codeActionsOnSave&quot;: {
+    &quot;source.fixAll.eslint&quot;: &quot;explicit&quot;
+  },
+  &quot;[typescript]&quot;: { &quot;editor.defaultFormatter&quot;: &quot;esbenp.prettier-vscode&quot; },
+  &quot;[html]&quot;: { &quot;editor.defaultFormatter&quot;: &quot;esbenp.prettier-vscode&quot; },
+  &quot;[scss]&quot;: { &quot;editor.defaultFormatter&quot;: &quot;esbenp.prettier-vscode&quot; },
+  &quot;[json]&quot;: { &quot;editor.defaultFormatter&quot;: &quot;esbenp.prettier-vscode&quot; }
+}</code></pre>
+          </div>
+          <div class="snippet">
+            <div class="snippet-head"><span>Terminal</span></div>
+            <pre tabindex="0"><code>npx prettier --write .
+npx prettier --check .</code></pre>
+          </div>
+        </section>
+        <section id="ide">
+          <h2>06 · Set up SonarLint / SonarQube for IDE</h2>
+          <p>
+            <strong>SonarQube for IDE</strong> is the current product name; its VS Code extension ID
+            remains <code>SonarSource.sonarlint-vscode</code>. There is no
+            <code>npm run sonarlint</code> command in this recipe. IDE feedback and a CI server scan
+            are separate operations.
+          </p>
+          <ol>
+            <li>Install the extension from step 05 and reload VS Code if prompted.</li>
+            <li>
+              Open a TypeScript source file. Check the Problems panel and the SonarQube output
+              channel if analysis does not start.
+            </li>
+            <li>Create or obtain the SonarQube Cloud or Server project described in step 08.</li>
+            <li>
+              Open the SonarQube extension view and add a connection using its wizard. Select Cloud
+              or Server and authenticate through the supported secure flow.
+            </li>
+            <li>
+              Bind this workspace folder to the correct project key. Confirm the extension reports a
+              bound connection.
+            </li>
+            <li>
+              Synchronize the connection and review findings against the server’s quality profile.
+            </li>
+          </ol>
+          <p>
+            <strong>Connected mode</strong> brings server settings into the IDE. It does not upload
+            a CI analysis or create coverage. Keep authentication tokens out of
+            <code>.vscode/settings.json</code>, HTML, and Git history.
+          </p>
+          <p class="source">
+            Reference:
+            <a
+              href="https://docs.sonarsource.com/sonarqube-for-vs-code/connect-your-ide/connected-mode"
+              >SonarQube for VS Code connected mode</a
+            >.
+          </p>
+        </section>
+        <section id="coverage-fresh-angular">
+          <h2>07 · Generate coverage and define repeatable commands</h2>
+          <p>
+            <strong>Why:</strong> Sonar imports an LCOV report generated by the test runner. It does
+            not execute tests. Install the coverage provider at the same version as the installed
+            Vitest runner.
+          </p>
+          <div class="snippet">
+            <div class="snippet-head"><span>Fresh Angular 21 app · terminal</span></div>
+            <pre tabindex="0"><code>npm ls vitest
+npm install --save-dev --save-exact &quot;@vitest/coverage-v8@$(node -p &quot;require(&#x27;vitest/package.json&#x27;).version&quot;)&quot;</code></pre>
+          </div>
+          <p>
+            Merge these options into <code>projects.quality-lab.architect.test.options</code> in
+            <code>angular.json</code>. Preserve the generated builder and its other settings.
+            Including application files makes untested code visible.
+          </p>
+          <div class="snippet">
+            <div class="snippet-head"><span>angular.json · test options to merge</span></div>
+            <pre tabindex="0"><code>{
+  &quot;coverageInclude&quot;: [&quot;src/**/*.ts&quot;],
+  &quot;coverageExclude&quot;: [&quot;src/**/*.spec.ts&quot;, &quot;src/main.ts&quot;],
+  &quot;coverageReporters&quot;: [&quot;text&quot;, &quot;html&quot;, &quot;lcov&quot;],
+  &quot;coverageThresholds&quot;: {
+    &quot;statements&quot;: 80,
+    &quot;branches&quot;: 80,
+    &quot;functions&quot;: 80,
+    &quot;lines&quot;: 80
+  }
+}</code></pre>
+          </div>
+          <p>
+            The 80% policy is a starting team decision, not a promise that generated tests satisfy
+            it. Write behavior tests until the agreed gate passes; do not remove application files
+            to make a report green.
+          </p>
+          <div class="snippet">
+            <div class="snippet-head">
+              <span>package.json · merge these scripts; preserve other fields</span>
+            </div>
+            <pre tabindex="0"><code>{
+  &quot;scripts&quot;: {
+    &quot;lint&quot;: &quot;eslint src --max-warnings=0&quot;,
+    &quot;lint:fix&quot;: &quot;eslint src --fix --max-warnings=0&quot;,
+    &quot;format&quot;: &quot;prettier --write .&quot;,
+    &quot;format:check&quot;: &quot;prettier --check .&quot;,
+    &quot;test:coverage&quot;: &quot;ng test quality-lab --watch=false --coverage&quot;,
+    &quot;build&quot;: &quot;ng build quality-lab --configuration=production&quot;,
+    &quot;quality&quot;: &quot;npm run lint &amp;&amp; npm run format:check &amp;&amp; npm run test:coverage&quot;,
+    &quot;verify&quot;: &quot;npm run quality &amp;&amp; npm run build&quot;,
+    &quot;sonar:scan&quot;: &quot;node scripts/sonar-scan.mjs&quot;
+  }
+}</code></pre>
+          </div>
+          <div class="snippet">
+            <div class="snippet-head"><span>Run and inspect the real report path</span></div>
+            <pre tabindex="0"><code>npm run format
+npm run verify
+# Angular 21 normally writes coverage under the project name:
+node -e &quot;const fs=require(&#x27;node:fs&#x27;); const p=&#x27;coverage/quality-lab/lcov.info&#x27;; if(!fs.readFileSync(p,&#x27;utf8&#x27;).includes(&#x27;SF:&#x27;)) process.exit(1); console.log(&#x27;Valid LCOV:&#x27;,p)&quot;</code></pre>
+          </div>
+          <p>
+            <strong>Expected result:</strong> tests and coverage thresholds pass, the LCOV file
+            contains original source-file records, and the production build appears under
+            <code>dist/quality-lab/browser/</code>. If your runner emits a different directory, use
+            that same path in both the scanner check and Sonar properties below. Template type
+            checking also happens in the Angular build.
+          </p>
+          <p class="source">
+            Reference:
+            <a href="https://angular.dev/guide/testing/code-coverage"
+              >Angular coverage options and thresholds</a
+            >.
+          </p>
+        </section>
+        <section id="sonar">
+          <h2>08 · Configure SonarQube Cloud or Server</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Choose one service</th>
+                  <th>Setup</th>
+                  <th>Connection values</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>SonarQube Cloud</td>
+                  <td>
+                    Connect GitHub, import/create the project, and switch to CI-based analysis.
+                    Disable automatic analysis for that project before running the scanner.
+                  </td>
+                  <td>
+                    Regional host URL shown by project setup, project key, organization key, scoped
+                    analysis token
+                  </td>
+                </tr>
+                <tr>
+                  <td>SonarQube Server / Community Build</td>
+                  <td>
+                    Use your organization’s reachable server; create the project and grant the
+                    analysis identity access. A GitHub-hosted runner needs a network path to the
+                    server.
+                  </td>
+                  <td>
+                    Server base URL, project key, scoped analysis token; usually no organization
+                    value
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p>
+            Use the host URL shown in your project’s onboarding instructions. A server on your
+            laptop’s <code>localhost</code> is not reachable as localhost from a GitHub runner. Use
+            an organization-approved runner/network for a private server.
+          </p>
+          <div class="snippet">
+            <div class="snippet-head">
+              <span>Terminal · scanner dependency and script directory</span>
+            </div>
+            <pre tabindex="0"><code>npm install --save-dev --save-exact @sonar/scan@5
+mkdir -p scripts</code></pre>
+          </div>
+          <div class="snippet">
+            <div class="snippet-head">
+              <span>sonar-project.properties · new single Angular app</span>
+            </div>
+            <pre tabindex="0"><code>sonar.projectName=Quality Lab
+sonar.sourceEncoding=UTF-8
+sonar.sources=src
+sonar.tests=src
+sonar.test.inclusions=**/*.spec.ts
+sonar.exclusions=**/*.spec.ts
+sonar.javascript.lcov.reportPaths=coverage/quality-lab/lcov.info
+sonar.typescript.tsconfigPaths=tsconfig.app.json,tsconfig.spec.json
+sonar.qualitygate.wait=true
+sonar.qualitygate.timeout=300</code></pre>
+          </div>
+          <p>
+            Keep identity and connection values outside this file so the same template can be
+            reused. This scanner script uses the npm scanner API, checks required values and
+            coverage first, and returns a failing exit code if analysis or the server gate fails.
+          </p>
+          <div class="snippet">
+            <div class="snippet-head"><span>scripts/sonar-scan.mjs</span></div>
+            <pre tabindex="0"><code>import { readFile } from &#x27;node:fs/promises&#x27;;
+import { scan } from &#x27;@sonar/scan&#x27;;
+
+try {
+  const required = [&#x27;SONAR_HOST_URL&#x27;, &#x27;SONAR_PROJECT_KEY&#x27;, &#x27;SONAR_TOKEN&#x27;];
+  const missing = required.filter((name) =&gt; !process.env[name]?.trim());
+  if (missing.length) throw new Error(`Missing settings: ${missing.join(&#x27;, &#x27;)}`);
+
+  const lcov = await readFile(&#x27;coverage/quality-lab/lcov.info&#x27;, &#x27;utf8&#x27;);
+  if (!lcov.includes(&#x27;SF:&#x27;)) throw new Error(&#x27;Generate valid LCOV coverage first.&#x27;);
+
+  await scan({
+    serverUrl: process.env.SONAR_HOST_URL,
+    token: process.env.SONAR_TOKEN,
+    options: {
+      &#x27;sonar.projectKey&#x27;: process.env.SONAR_PROJECT_KEY,
+      ...(process.env.SONAR_ORGANIZATION
+        ? { &#x27;sonar.organization&#x27;: process.env.SONAR_ORGANIZATION }
+        : {}),
+    },
+  });
+} catch {
+  console.error(&#x27;Sonar scan failed. Check settings, coverage, scanner output, and quality gate.&#x27;);
+  process.exitCode = 1;
+}</code></pre>
+          </div>
+          <p>
+            The catch message deliberately avoids printing settings or tokens. Run the scanner from
+            the workspace root. The provider reads <code>sonar-project.properties</code> there.
+          </p>
+          <div class="snippet">
+            <div class="snippet-head"><span>Local scan · replace non-secret values</span></div>
+            <pre tabindex="0"><code>export SONAR_HOST_URL=&#x27;https://YOUR-SONAR-HOST&#x27;
+export SONAR_PROJECT_KEY=&#x27;YOUR_PROJECT_KEY&#x27;
+# Cloud only; omit for Server unless its setup requires it:
+export SONAR_ORGANIZATION=&#x27;YOUR_ORGANIZATION_KEY&#x27;
+
+# Enter the token privately; bash and zsh support this prompt:
+printf &#x27;Sonar analysis token: &#x27;
+read -r -s SONAR_TOKEN
+printf &#x27;\n&#x27;
+export SONAR_TOKEN
+
+npm run test:coverage
+npm run sonar:scan
+unset SONAR_TOKEN</code></pre>
+          </div>
+          <p>
+            <strong>Expected result:</strong> the server shows this commit’s analysis and imported
+            coverage, and the command waits for the quality gate. Define the new-code period,
+            quality profile, and gate in Sonar. A proposed policy is no new reliability/security
+            issues, reviewed new hotspots, at least 80% new-code coverage, and at most 3% new-code
+            duplication. Installing the scanner does not create these policies.
+          </p>
+          <p class="source">
+            Reference:
+            <a
+              href="https://docs.sonarsource.com/sonarqube-server/analyzing-source-code/scanners/npm/using"
+              >SonarScanner for npm usage</a
+            >.
+          </p>
+          <p class="source">
+            Reference:
+            <a
+              href="https://docs.sonarsource.com/sonarqube-cloud/analyzing-source-code/ci-based-analysis/overview-of-integrated-cis"
+              >Cloud automatic analysis versus CI analysis</a
+            >.
+          </p>
+        </section>
+        <section id="github">
+          <h2>09 · Create the GitHub repository and store settings</h2>
+          <p>
+            Create an empty GitHub repository named <code>quality-lab</code>. The following commands
+            assume the Angular generator already initialized local Git. Run
+            <code>git status</code> first; run <code>git init</code> only if this new project has no
+            repository. Use your own account or organization.
+          </p>
+          <div class="snippet">
+            <div class="snippet-head"><span>New project · terminal</span></div>
+            <pre tabindex="0"><code>npm run format
+npm run verify
+git status
+git add .
+git commit -m &quot;Configure Angular quality baseline&quot;
+git branch -M main
+git remote add origin https://github.com/YOUR_ACCOUNT/quality-lab.git
+git push -u origin main</code></pre>
+          </div>
+          <p>
+            If <code>origin</code> already exists, inspect <code>git remote -v</code> and use the
+            intended remote instead of adding another. Before committing, confirm no token file or
+            local secret is staged.
+          </p>
+          <p>
+            On GitHub open <strong>Settings → Secrets and variables → Actions</strong>. Add the
+            following values. GitHub CLI is an alternative if installed and authenticated:
+          </p>
+          <div class="snippet">
+            <div class="snippet-head"><span>GitHub CLI · run inside the new repository</span></div>
+            <pre tabindex="0"><code>gh auth login
+gh variable set SONAR_HOST_URL --body &#x27;https://YOUR-SONAR-HOST&#x27;
+gh variable set SONAR_PROJECT_KEY --body &#x27;YOUR_PROJECT_KEY&#x27;
+# Cloud only:
+gh variable set SONAR_ORGANIZATION --body &#x27;YOUR_ORGANIZATION_KEY&#x27;
+# Prompts for the value; do not put it on the command line:
+gh secret set SONAR_TOKEN
+
+gh variable list
+gh secret list</code></pre>
+          </div>
+          <p>
+            Use repository <strong>variables</strong> for host/key/organization and a repository
+            <strong>secret</strong> for the token. Grant the token only the analysis permissions it
+            needs. CI configuration below scans main after merge, so PR checks do not need Sonar
+            credentials.
+          </p>
+          <p class="source">
+            Reference:
+            <a
+              href="https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-secrets"
+              >GitHub Actions secret setup</a
+            >.
+          </p>
+        </section>
+        <section id="ci">
+          <h2>10 · Add the GitHub Actions CI workflow</h2>
+          <p>
+            Create <code>.github/workflows/ci.yml</code>. This complete starter runs local quality
+            checks and a production build on PRs and main. On main, a second job imports the same
+            run’s coverage and requires a real Sonar gate result. No Sonar token is passed to PR
+            code.
+          </p>
+          <div class="snippet">
+            <div class="snippet-head">
+              <span>.github/workflows/ci.yml · single-app starter</span>
+            </div>
+            <pre tabindex="0"><code>name: Angular product pipeline
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == &#x27;pull_request&#x27; }}
+
+jobs:
+  checks:
+    name: Quality checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CI: true
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run quality
+      - run: npm run build
+      - name: Save coverage for analysis
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: unit-coverage
+          path: coverage/
+          if-no-files-found: error
+          retention-days: 7
+      - name: Save the exact browser build
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: quality-lab-browser
+          path: dist/quality-lab/browser/
+          if-no-files-found: error
+          retention-days: 7
+
+  sonar:
+    name: Main Sonar gate
+    needs: checks
+    if: github.event_name != &#x27;pull_request&#x27; &amp;&amp; github.ref == &#x27;refs/heads/main&#x27;
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        with:
+          name: unit-coverage
+          path: coverage
+      - name: Analyze and wait for the quality gate
+        run: npm run sonar:scan
+        env:
+          SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
+          SONAR_PROJECT_KEY: ${{ vars.SONAR_PROJECT_KEY }}
+          SONAR_ORGANIZATION: ${{ vars.SONAR_ORGANIZATION }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}</code></pre>
+          </div>
+          <p>
+            <strong>Why these choices:</strong> <code>npm ci</code> uses the lockfile; the build and
+            coverage artifacts belong to this run; full history helps Sonar’s new-code analysis;
+            pinned action commits reduce unexpected changes; jobs have timeouts and minimal
+            permissions. Use Dependabot to review updates to those pins.
+          </p>
+          <p>
+            <strong>Scope of enforcement:</strong> the starter gates PR merges with
+            <em>Quality checks</em> and gates deployment with the successful
+            <em>Main Sonar gate</em>. It does not claim to run Sonar PR analysis. Add that later if
+            your Sonar product/plan supports it and your organization has a trusted PR-scanning
+            policy. A skipped Sonar job is not evidence that a quality gate passed.
+          </p>
+          <p>
+            For integration journeys, add Playwright after configuring a test server and writing
+            meaningful tests. Then put <code>npx playwright install --with-deps chromium</code> and
+            <code>npm run test:e2e</code> before uploading the deployable artifact. PulseOps already
+            has this browser contract layer.
+          </p>
+        </section>
+        <section id="protect">
+          <h2>11 · Require checks and maintain dependencies</h2>
+          <ol>
+            <li>
+              Commit and push <code>ci.yml</code>. Inspect the Actions tab and fix the first main
+              run, including Sonar configuration.
+            </li>
+            <li>
+              Open a test PR so GitHub has a completed <strong>Quality checks</strong> status to
+              select.
+            </li>
+            <li>
+              In repository Settings, configure a ruleset or branch protection for
+              <code>main</code>. Require PR review and the exact
+              <strong>Quality checks</strong> status. Prevent direct pushes or bypasses according to
+              your team’s policy.
+            </li>
+            <li>
+              If your policy requires Sonar before merge, add supported PR analysis and require its
+              actual reported gate. The main-only job above is a deployment gate, not a pre-merge
+              Sonar gate.
+            </li>
+            <li>
+              For production deployment, configure an environment restricted to main and reviewers
+              where supported by your GitHub plan.
+            </li>
+          </ol>
+          <div class="snippet">
+            <div class="snippet-head"><span>.github/dependabot.yml</span></div>
+            <pre tabindex="0"><code>version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly</code></pre>
+          </div>
+          <p>
+            Review Angular, TypeScript, angular-eslint, and Nx versions as a compatible set.
+            Dependency update PRs must pass the same checks as feature changes. Keep action SHA pins
+            associated with a readable version comment.
+          </p>
+          <p class="source">
+            Reference:
+            <a
+              href="https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches"
+              >GitHub protected branches and required checks</a
+            >.
+          </p>
+        </section>
+        <section id="deploy">
+          <h2>12 · Optional concrete CD example: GitHub Pages</h2>
+          <p>
+            This exercise deploys the new <strong>single-app quality-lab</strong> to a repository
+            Pages URL, such as <code>https://YOUR_ACCOUNT.github.io/quality-lab/</code>. It
+            demonstrates artifact promotion after quality gates. A public Pages site is a demo
+            hosting choice; your production product should use the platform and access controls
+            agreed with your team.
+          </p>
+          <ol>
+            <li>
+              In GitHub repository <strong>Settings → Pages</strong>, choose
+              <strong>GitHub Actions</strong> as the publishing source.
+            </li>
+            <li>
+              For this repository-subpath example, change the build step in the
+              <code>checks</code> job as shown below. For a root custom domain or an account Pages
+              repository, use base href <code>/</code> instead.
+            </li>
+            <li>
+              Pages does not provide Angular route rewrites. For this demo, use hash routing by
+              replacing the existing router provider in <code>src/app/app.config.ts</code> with the
+              provider below.
+            </li>
+            <li>
+              Append the two jobs below under <code>jobs:</code> in the
+              <strong>same ci.yml</strong>. Keep indentation consistent with <code>checks</code> and
+              <code>sonar</code>.
+            </li>
+          </ol>
+          <div class="snippet">
+            <div class="snippet-head">
+              <span>Replace the checks job build command for repository Pages hosting</span>
+            </div>
+            <pre
+              tabindex="0"
+            ><code>- run: npm run build -- --base-href=&quot;/${{ github.event.repository.name }}/&quot;</code></pre>
+          </div>
+          <div class="snippet">
+            <div class="snippet-head">
+              <span
+                >src/app/app.config.ts · merge imports and replace the existing router
+                provider</span
+              >
+            </div>
+            <pre
+              tabindex="0"
+            ><code>import { provideRouter, withHashLocation } from &#x27;@angular/router&#x27;;
+
+// Inside the existing providers array; keep other providers:
+provideRouter(routes, withHashLocation())</code></pre>
+          </div>
+          <div class="snippet">
+            <div class="snippet-head">
+              <span>Append under jobs: in ci.yml · optional Pages deployment</span>
+            </div>
+            <pre tabindex="0"><code>  prepare-pages:
+    name: Package checked build for Pages
+    needs: [checks, sonar]
+    if: &gt;-
+      github.event_name == &#x27;push&#x27; &amp;&amp;
+      github.ref == &#x27;refs/heads/main&#x27; &amp;&amp;
+      needs.sonar.result == &#x27;success&#x27;
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pages: write
+    steps:
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        with:
+          name: quality-lab-browser
+          path: site
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: site
+
+  deploy-pages:
+    name: Deploy checked Pages artifact
+    needs: prepare-pages
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.publish.outputs.page_url }}
+    concurrency:
+      group: github-pages
+      cancel-in-progress: false
+    steps:
+      - name: Publish the packaged artifact
+        id: publish
+        uses: actions/deploy-pages@v4</code></pre>
+          </div>
+          <p>
+            The three Pages-specific actions use readable official major tags here. Before adopting
+            the example as a production standard, resolve and pin their reviewed full commit SHAs
+            too. The download action reads only this run’s build artifact; CD does not rebuild it.
+          </p>
+          <div class="snippet">
+            <div class="snippet-head"><span>After committing the workflow · GitHub CLI</span></div>
+            <pre tabindex="0"><code>npm run format
+npm run verify
+git add .
+git commit -m &quot;Add gated Pages deployment&quot;
+git push
+gh run list --workflow ci.yml
+gh run watch
+# Open the published URL shown by the deployment job.</code></pre>
+          </div>
+          <p>
+            <strong>Expected result:</strong> a failed quality check or main Sonar gate prevents
+            deployment. A successful main push publishes the checked build. Re-run tests on the
+            deployed URL, including a deep-link refresh. This recipe deploys one Angular app; a
+            federated product needs the release topology in step 14.
+          </p>
+          <p class="source">
+            Reference:
+            <a
+              href="https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages"
+              >GitHub Pages custom workflows</a
+            >.
+          </p>
+        </section>
+        <section id="nx">
+          <h2>13 · Alternative setup: Nx workspace</h2>
+          <p>
+            Choose this path <strong>instead of</strong> creating the Angular CLI workspace in step
+            03. Nx manages projects and task orchestration. It does not make every application a
+            federated remote automatically.
+          </p>
+          <div class="snippet">
+            <div class="snippet-head"><span>Terminal · create a separate Nx workspace</span></div>
+            <pre tabindex="0"><code>npx create-nx-workspace@latest quality-platform
+cd quality-platform
+# In the wizard choose Angular, an integrated workspace, npm,
+# and your desired application name (for example mfe-shell).
+npx nx report
+npx nx show projects
+npx nx add @nx/eslint
+npx nx g @nx/angular:app apps/mfe-orders --linter=eslint
+npx nx g @nx/angular:app apps/mfe-inventory --linter=eslint
+npx nx run-many -t lint
+npx nx run-many -t build</code></pre>
+          </div>
+          <p>
+            Keep the generated Nx version and its <code>@nx/*</code> plugins aligned. Current
+            generator options can vary by Nx/Angular version; inspect
+            <code>npx nx g @nx/angular:app --help</code> and the generated project configuration.
+            The Nx commands here use the supported release selected at setup time; the main Angular
+            CLI recipe remains pinned to major 21.
+          </p>
+          <p>
+            <strong>Preserve the generated ESLint config</strong>, especially
+            <code>@nx/enforce-module-boundaries</code>. Extend its project TypeScript/template
+            blocks with your policy; do not replace the Nx root config with the Angular CLI example.
+            If an existing project has no ESLint configuration, inspect and use
+            <code>npx nx g @nx/eslint:configuration --help</code>.
+          </p>
+          <div class="snippet">
+            <div class="snippet-head">
+              <span>Inspect generated targets before writing CI scripts</span>
+            </div>
+            <pre tabindex="0"><code>npx nx show project mfe-shell
+npx nx show project mfe-orders
+npx nx lint mfe-orders
+npx nx run-many -t lint build
+# For Angular unit-test targets using @angular/build:unit-test:
+npx nx run-many -t test --watch=false --coverage</code></pre>
+          </div>
+          <p>
+            If a target uses a different executor, use that runner’s CI and coverage flags.
+            Configure LCOV for every app/shared library and list the actual paths in Sonar, for
+            example
+            <code>coverage/apps/mfe-orders/lcov.info,coverage/apps/mfe-inventory/lcov.info</code>
+            only if those files really exist. Replace the CI build artifact paths with Nx’s
+            configured output paths. Decide explicitly how to aggregate project reports and which
+            shared modules belong to each analysis scope.
+          </p>
+          <p>
+            Begin CI with <code>run-many</code> over all relevant projects. Adopt
+            <code>nx affected</code> later with correctly configured base/head SHAs and periodic
+            full checks. Preserve dependency-boundary lint rules as projects multiply.
+          </p>
+          <p class="source">
+            Reference:
+            <a href="https://nx.dev/docs/technologies/eslint/introduction">Nx ESLint setup</a>.
+          </p>
+          <p class="source">
+            Reference:
+            <a href="https://nx.dev/docs/technologies/angular/generators"
+              >Nx Angular application generators</a
+            >.
+          </p>
+        </section>
+        <section id="mfe">
+          <h2>14 · Extend the pipeline for production microfrontends</h2>
+          <p>
+            Federation changes what must be released together. The shell, each remote, shared
+            packages, runtime manifest, and complete federation output all need explicit ownership
+            and compatibility checks.
+          </p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Decision</th>
+                  <th>Production approach</th>
+                  <th>Evidence to collect</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Build and package</td>
+                  <td>
+                    Create an immutable release directory per shell/remote and commit SHA. Upload
+                    the complete browser output, including federation metadata and shared chunks.
+                  </td>
+                  <td>Artifact inventory, hashes, and release identity</td>
+                </tr>
+                <tr>
+                  <td>Deploy order</td>
+                  <td>
+                    Publish and verify remote assets first. Promote a manifest referencing those
+                    releases only after they are reachable and compatible.
+                  </td>
+                  <td>Remote entry/chunk fetches and composed browser smoke tests</td>
+                </tr>
+                <tr>
+                  <td>Shared dependencies</td>
+                  <td>
+                    Agree Angular/RxJS/shared-contract singleton versions. Test allowed host/remote
+                    combinations before promotion.
+                  </td>
+                  <td>Version compatibility matrix and shared-session tests</td>
+                </tr>
+                <tr>
+                  <td>Runtime URLs</td>
+                  <td>
+                    Use environment-specific HTTPS manifest URLs. Configure remote asset CORS, MIME
+                    types, CSP, and SPA fallback on the chosen CDN.
+                  </td>
+                  <td>Cross-origin loading and deep-link refresh tests</td>
+                </tr>
+                <tr>
+                  <td>Caching</td>
+                  <td>
+                    Cache immutable hashed assets for a long period. Revalidate the mutable
+                    manifest/entry according to the release strategy.
+                  </td>
+                  <td>Observed response headers and cold-load network tests</td>
+                </tr>
+                <tr>
+                  <td>Rollback</td>
+                  <td>
+                    Retain older referenced assets. Roll the manifest/shell pointer back to a tested
+                    compatible release set.
+                  </td>
+                  <td>Rollback rehearsal and recovery-time evidence</td>
+                </tr>
+                <tr>
+                  <td>Access and promotion</td>
+                  <td>
+                    Use protected environments and short-lived platform identity, such as OIDC,
+                    where supported.
+                  </td>
+                  <td>Least-privilege deployment role and auditable approval</td>
+                </tr>
+                <tr>
+                  <td>Operations</td>
+                  <td>
+                    Attach host/remote release IDs to telemetry. Exercise remote outage and
+                    recovery, login expiry, and navigation after logout.
+                  </td>
+                  <td>Alerts, ownership, runbook, and browser journey results</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p>
+            <strong>Why a shared folder is not a deployment unit:</strong> source code is bundled or
+            federated into browser artifacts. Deploying a source folder does not deliver a shared
+            service to the browser. Inspect the generated federation metadata/chunks and deploy
+            every referenced asset.
+          </p>
+          <p>
+            A common CI entry point for a workspace is
+            <code>npm run quality &amp;&amp; npm run build &amp;&amp; npm run test:e2e</code>, with
+            those scripts orchestrating the shell, all remotes, and shared contracts. Each
+            independently deployed remote must also prove compatibility with the supported shell
+            versions.
+          </p>
+          <p>
+            Before a real product launch, complete backend authorization, secure session handling,
+            tenant boundaries, monitoring, and incident recovery. Static analysis and pipeline gates
+            provide evidence about code quality; the architecture still needs those operating
+            capabilities.
+          </p>
+        </section>
+        <section id="troubleshoot">
+          <h2>15 · Troubleshooting and command revision sheet</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Symptom</th>
+                  <th>Check / action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>ng lint</code> has no target</td>
+                  <td>
+                    Run angular-eslint’s project generator for Angular CLI, or inspect the Nx ESLint
+                    target. Installing the VS Code extension does not create a target.
+                  </td>
+                </tr>
+                <tr>
+                  <td>ESLint cannot find project information</td>
+                  <td>
+                    Check generated tsconfig includes and config scope. Keep standalone tooling
+                    files out of a type-aware app rule block until configured.
+                  </td>
+                </tr>
+                <tr>
+                  <td>Prettier fails in CI</td>
+                  <td>
+                    Run <code>npm run format</code>, review the diff, commit it, and repeat
+                    <code>npm run format:check</code>.
+                  </td>
+                </tr>
+                <tr>
+                  <td>Vitest coverage provider mismatch</td>
+                  <td>
+                    Run <code>npm ls vitest @vitest/coverage-v8</code> and align provider/runner
+                    versions.
+                  </td>
+                </tr>
+                <tr>
+                  <td>Sonar shows 0% coverage</td>
+                  <td>
+                    Generate LCOV first; verify the configured path, artifact download location, and
+                    source paths in <code>SF:</code> records.
+                  </td>
+                </tr>
+                <tr>
+                  <td>Sonar 401 / 403</td>
+                  <td>
+                    Check project access, token expiry, project/organization key, and the GitHub
+                    secret name without printing its value.
+                  </td>
+                </tr>
+                <tr>
+                  <td>Cloud rejects CI analysis</td>
+                  <td>Disable project automatic analysis before switching to the scanner.</td>
+                </tr>
+                <tr>
+                  <td>Server cannot be reached</td>
+                  <td>
+                    Verify runner DNS, TLS, proxy/network policy, and whether the server is private.
+                    Runner localhost is its own machine.
+                  </td>
+                </tr>
+                <tr>
+                  <td>Scan uploaded but pipeline failed</td>
+                  <td>
+                    Open the reported analysis and inspect the server quality gate. A successful
+                    upload can still have a failed gate.
+                  </td>
+                </tr>
+                <tr>
+                  <td>Sonar job skipped on a PR</td>
+                  <td>
+                    Expected in this starter’s main-only scan policy. A skip does not establish a
+                    Sonar pass; require a supported PR gate if that is your merge policy.
+                  </td>
+                </tr>
+                <tr>
+                  <td>Pages route refresh returns 404</td>
+                  <td>
+                    Check repository base href and the demo’s hash routing; on production
+                    infrastructure configure a proper SPA fallback.
+                  </td>
+                </tr>
+                <tr>
+                  <td>Shell works but remote fails after release</td>
+                  <td>
+                    Inspect manifest URL, entry metadata, referenced chunks, shared versions, CORS,
+                    CSP, and retained release assets.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="snippet">
+            <div class="snippet-head"><span>Daily commands · new Angular CLI recipe</span></div>
+            <pre tabindex="0"><code>npm ci                    # reproduce locked dependencies
+npm run lint              # fail on quality violations
+npm run lint:fix          # apply supported fixes; review the diff
+npm run format            # apply formatting
+npm run format:check      # verify formatting without edits
+npm run test:coverage     # unit tests + thresholds + LCOV
+npm run verify            # local quality + production build
+npm run sonar:scan        # configured server analysis + gate
+gh run list --workflow ci.yml
+gh run watch</code></pre>
+          </div>
+          <div class="checklist">
+            <h3>New-project completion checklist</h3>
+            <label
+              ><input type="checkbox" /> Node, Angular, ESLint, and test-runner versions are
+              compatible and locked.</label
+            >
+            <label
+              ><input type="checkbox" /> ESLint checks TypeScript and Angular templates with zero
+              warnings.</label
+            >
+            <label
+              ><input type="checkbox" /> Prettier and editor recommendations are committed.</label
+            >
+            <label
+              ><input type="checkbox" /> Tests generate valid original-source LCOV and meet the
+              agreed threshold.</label
+            >
+            <label><input type="checkbox" /> The IDE is bound to the intended Sonar project.</label>
+            <label
+              ><input type="checkbox" /> A CI scan actually passes the configured Sonar gate.</label
+            >
+            <label
+              ><input type="checkbox" /> GitHub variables/secrets and required PR checks are
+              configured.</label
+            >
+            <label
+              ><input type="checkbox" /> Deployment consumes the checked artifact and requires
+              successful gates.</label
+            >
+            <label
+              ><input type="checkbox" /> The deployed user journey and rollback procedure have been
+              exercised.</label
+            >
+          </div>
+          <p>
+            The checklist is for revision and does not verify your environment automatically. This
+            HTML contains setup examples; creating it did not create a new application, configure
+            your GitHub account, run a remote Sonar scan, or publish a site.
+          </p>
+        </section>
+      </main>
+    </div>
+    <footer>
+      Updated for PulseOps activation · 14 November 2026. This documentation update changes only
+      this HTML. Examples reference official Angular, Nx, SonarSource, and GitHub documentation
+      beside the relevant step. Version choices and repository policies should be reviewed when
+      starting a new project. This file has no external scripts, fonts, or network dependencies.
+    </footer>
+    <script>
+      const copyStatus = document.getElementById('copy-status');
+      document.getElementById('print-guide').addEventListener('click', () => window.print());
+      for (const snippet of document.querySelectorAll('.snippet')) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.textContent = 'Copy';
+        button.setAttribute(
+          'aria-label',
+          'Copy ' + snippet.querySelector('.snippet-head span').textContent,
+        );
+        snippet.querySelector('.snippet-head').append(button);
+        button.addEventListener('click', async () => {
+          const text = snippet.querySelector('code').textContent;
+          try {
+            if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable');
+            await navigator.clipboard.writeText(text);
+            button.textContent = 'Copied';
+            copyStatus.textContent = 'Snippet copied. Review placeholders before running it.';
+            setTimeout(() => {
+              button.textContent = 'Copy';
+            }, 1800);
+          } catch {
+            const selection = window.getSelection();
+            const range = document.createRange();
+            range.selectNodeContents(snippet.querySelector('code'));
+            selection.removeAllRanges();
+            selection.addRange(range);
+            copyStatus.textContent = 'Snippet selected. Press Ctrl+C or Command+C to copy.';
+          }
+        });
+      }
+    </script>
+  </body>
+</html>

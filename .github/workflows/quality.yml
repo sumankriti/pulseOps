@@ -1,0 +1,107 @@
+name: Quality gates
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    name: Lint, coverage, build, and browser contracts
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      CI: true
+      PLAYWRIGHT_CHANNEL: chromium
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Set up Node
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Run static and unit quality checks
+        run: npm run quality
+      - name: Build host and both remote artifacts
+        run: npm run build
+      - name: Install browser matching the locked Playwright version
+        run: npx playwright install --with-deps chromium
+      - name: Verify cross-origin host and remote journeys
+        run: npm run test:e2e
+      - name: Retain coverage report
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: coverage
+          path: coverage/
+          if-no-files-found: warn
+          retention-days: 7
+      - name: Retain browser diagnostics
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: browser-diagnostics
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: warn
+          retention-days: 7
+      - name: Retain complete host and remote browser artifacts
+        if: success()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: pulseops-browser-artifacts
+          path: |
+            dist/mfe-shell/browser/
+            dist/mfe-orders/browser/
+            dist/mfe-inventory/browser/
+          if-no-files-found: error
+          retention-days: 7
+
+  sonar:
+    name: Sonar quality gate (explicit opt-in)
+    needs: checks
+    # No scan or credentials are used until an administrator enables the repository variable.
+    # Fork pull requests never receive a scan token. Do not use pull_request_target.
+    if: >-
+      ${{ vars.SONAR_ENABLED == 'true' &&
+          (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out source with history for new-code analysis
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Set up Node
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Download coverage from the successful checks job
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        with:
+          name: coverage
+          path: coverage
+      - name: Analyze code and wait for the server-side quality gate
+        run: npm run sonar:scan
+        env:
+          SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
+          SONAR_PROJECT_KEY: ${{ vars.SONAR_PROJECT_KEY }}
+          SONAR_ORGANIZATION: ${{ vars.SONAR_ORGANIZATION }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
