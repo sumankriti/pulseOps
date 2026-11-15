@@ -197,3 +197,5 @@ The full coverage report includes every runtime TypeScript source, including unt
 To enable optional server-side Sonar analysis, configure repository variables `SONAR_ENABLED=true`, `SONAR_HOST_URL`, `SONAR_PROJECT_KEY`, and (for Cloud) `SONAR_ORGANIZATION`; put `SONAR_TOKEN` in repository secrets. For a deliberate local scan, set the same connection/token environment variables and run `npm run test:coverage` followed by `npm run sonar:scan`. Do not store credentials in source, shell command arguments, or tracked editor settings. Connect the IDE to the real project through its connection UI. Server-side quality profiles and quality-gate thresholds must be configured on that server.
 
 See [the production-readiness plan](docs/production-readiness.md) for architecture ownership, setup, and the prioritized work still needed for real authentication, backend authorization, tenant isolation, safe deployment, and observability. A passing tooling baseline does not make the demo production-ready.
+
+Testing another branches rule set for another feature branch
